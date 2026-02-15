@@ -11,106 +11,133 @@ import { useLanguage } from "@/context/LanguageContext";
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const { openCart, items } = useCart();
-    const { t } = useLanguage();
     const itemCount = items.reduce((total, item) => total + item.quantity, 0);
 
-    // Scrolled state for border
+    // Scrolled state for glass effect intensity
     const [scrolled, setScrolled] = useState(false);
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 0);
+        const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    const navLinks = [
+        { name: "HOME", href: "/" },
+        { name: "DROPS", href: "/shop?sort=newest" },
+        { name: "HOMBRE", href: "/shop?category=Hombre" },
+        { name: "MUJER", href: "/shop?category=Mujer" },
+    ];
+
     return (
         <>
-            {/* Top Banner */}
-            <div className="bg-[#2c3e50] text-white text-[10px] md:text-xs font-bold py-2 text-center uppercase tracking-widest">
-                DESPACHO GRATIS EN COMPRAS SOBRE $54.990 A TODO CHILE.
-            </div>
-
             <nav
-                className={`sticky top-0 z-50 bg-white transition-all duration-300 ${scrolled ? "shadow-sm" : ""
+                className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 border-b border-white/5 backdrop-blur-md ${scrolled ? "bg-[var(--color-base)]/90 py-4" : "bg-transparent py-6"
                     }`}
             >
-                <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
 
-                    {/* Mobile Menu Trigger */}
-                    <button
-                        className="lg:hidden p-2 -ml-2"
-                        onClick={() => setIsOpen(true)}
-                    >
-                        <Menu className="w-6 h-6" />
-                    </button>
-
-                    {/* Desktop Left Links */}
-                    <div className="hidden lg:flex items-center space-x-8 text-xs font-bold tracking-widest uppercase">
-                        <Link href="/" className="hover:text-gray-500 transition-colors">{t.nav.home}</Link>
-                        <Link href="/shop" className="hover:text-gray-500 transition-colors">{t.nav.products}</Link>
-                        <Link href="/shop?filter=offers" className="text-red-600 hover:text-red-700 transition-colors">{t.nav.offers}</Link>
-                        <Link href="/about" className="hover:text-gray-500 transition-colors">{t.nav.about}</Link>
+                    {/* Brand - Left */}
+                    <div className="flex-shrink-0 z-50">
+                        <Link href="/" className="text-2xl md:text-3xl font-black tracking-tighter text-white font-display">
+                            SNEAKER.CL
+                        </Link>
                     </div>
 
-                    {/* Centered Logo */}
-                    <Link href="/" className="text-2xl font-black tracking-tighter uppercase absolute left-1/2 transform -translate-x-1/2">
-                        SNEAKHUB
-                    </Link>
+                    {/* Desktop Links - Center */}
+                    <div className="hidden lg:flex items-center space-x-12">
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.name}
+                                href={link.href}
+                                className="relative group text-sm font-bold tracking-[0.2em] text-white/90 hover:text-white transition-colors"
+                            >
+                                {link.name}
+                                <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-[var(--color-neon)] transition-all duration-300 group-hover:w-full box-shadow-neon" />
+                            </Link>
+                        ))}
+                    </div>
 
                     {/* Right Icons */}
-                    <div className="flex items-center space-x-6">
-                        <button className="hidden lg:block hover:text-gray-500 transition-colors">
-                            <Search className="w-5 h-5" />
+                    <div className="hidden lg:flex items-center space-x-8 text-white z-50">
+                        <button className="hover:text-[var(--color-neon)] transition-colors">
+                            <Search className="w-6 h-6" />
                         </button>
-                        <Link href="/admin/login" className="hidden lg:block hover:text-gray-500 transition-colors">
-                            <User className="w-5 h-5" />
+                        <Link href="/admin/login" className="hover:text-[var(--color-neon)] transition-colors">
+                            <User className="w-6 h-6" />
                         </Link>
                         <button
-                            className="relative hover:text-gray-500 transition-colors"
+                            className="relative hover:text-[var(--color-neon)] transition-colors"
                             onClick={openCart}
                         >
-                            <ShoppingBag className="w-5 h-5" />
+                            <ShoppingBag className="w-6 h-6" />
                             {itemCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-black text-white text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">
+                                <span className="absolute -top-2 -right-2 bg-[var(--color-neon)] text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                                     {itemCount}
                                 </span>
                             )}
                         </button>
                     </div>
+
+                    {/* Mobile Menu Button */}
+                    <div className="lg:hidden z-50 text-white flex gap-4 items-center">
+                        <button
+                            className="relative hover:text-[var(--color-neon)] transition-colors"
+                            onClick={openCart}
+                        >
+                            <ShoppingBag className="w-6 h-6" />
+                            {itemCount > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-[var(--color-neon)] text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                                    {itemCount}
+                                </span>
+                            )}
+                        </button>
+                        <button
+                            className="hover:text-[var(--color-neon)] transition-colors"
+                            onClick={() => setIsOpen(true)}
+                        >
+                            <Menu className="w-8 h-8" />
+                        </button>
+                    </div>
                 </div>
             </nav>
 
-            {/* Mobile Menu Overlay */}
+            {/* Mobile Menu Full Screen Overlay */}
             <AnimatePresence>
                 {isOpen && (
-                    <>
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 0.5 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-black z-50 lg:hidden"
+                    <motion.div
+                        initial={{ opacity: 0, y: "-100%" }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: "-100%" }}
+                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        className="fixed inset-0 bg-[var(--color-base)]/95 backdrop-blur-xl z-[60] flex flex-col items-center justify-center"
+                    >
+                        <button
                             onClick={() => setIsOpen(false)}
-                        />
-                        <motion.div
-                            initial={{ x: "-100%" }}
-                            animate={{ x: 0 }}
-                            exit={{ x: "-100%" }}
-                            transition={{ type: "tween", duration: 0.3 }}
-                            className="fixed inset-y-0 left-0 w-[80%] max-w-sm bg-white z-50 lg:hidden shadow-xl"
+                            className="absolute top-6 right-6 text-white hover:text-[var(--color-neon)] transition-colors"
                         >
-                            <div className="p-4 flex justify-between items-center border-b border-gray-100">
-                                <span className="font-bold text-lg">MENU</span>
-                                <button onClick={() => setIsOpen(false)}><X className="w-6 h-6" /></button>
-                            </div>
-                            <div className="flex flex-col p-6 space-y-6 text-sm font-bold tracking-widest uppercase">
-                                <Link href="/" onClick={() => setIsOpen(false)}>{t.nav.home}</Link>
-                                <Link href="/shop" onClick={() => setIsOpen(false)}>{t.nav.products}</Link>
-                                <Link href="/shop?filter=offers" className="text-red-600" onClick={() => setIsOpen(false)}>{t.nav.offers}</Link>
-                                <Link href="/about" onClick={() => setIsOpen(false)}>{t.nav.about}</Link>
-                                <div className="h-px bg-gray-100 my-2" />
-                                <Link href="/admin/login" className="text-gray-500" onClick={() => setIsOpen(false)}>Mi Cuenta</Link>
-                            </div>
-                        </motion.div>
-                    </>
+                            <X className="w-10 h-10" />
+                        </button>
+
+                        <div className="flex flex-col items-center space-y-8 text-center">
+                            {navLinks.map((link, i) => (
+                                <motion.div
+                                    key={link.name}
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: i * 0.1 + 0.3 }}
+                                >
+                                    <Link
+                                        href={link.href}
+                                        onClick={() => setIsOpen(false)}
+                                        className="text-5xl md:text-7xl font-black text-transparent hover:text-[var(--color-neon)] transition-all font-display tracking-tighter stroke-text hover:stroke-neon"
+                                        style={{ WebkitTextStroke: "1px white" }}
+                                    >
+                                        {link.name}
+                                    </Link>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </>

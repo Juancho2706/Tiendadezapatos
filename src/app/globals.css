@@ -1,28 +1,77 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #111111;
-  --muted: #f5f5f5;
-  --border: #e5e5e5;
+  --background: #1e293b;
+  --foreground: #ffffff;
+  --color-neon: #06b6d4;
+  --color-concrete: #94a3b8;
+  --color-base: #1e293b;
+  --color-dark-slate: #0f172a;
+
+  /* Font families mapped to variables */
+  --font-display: var(--font-archivo-black);
+  --font-body: var(--font-inter-tight);
 }
 
-/* Enforce light mode always */
+@theme {
+  --font-display: var(--font-archivo-black);
+  --font-body: var(--font-inter-tight);
+
+  --color-neon: var(--color-neon);
+  --color-concrete: var(--color-concrete);
+  --color-base: var(--color-base);
+  --color-dark-slate: var(--color-dark-slate);
+}
+
+/* Enforce dark minimalist theme */
 body {
-  background: var(--background);
+  background: var(--color-base);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-body), sans-serif;
 }
 
-/* Custom Utilities for Minimalist Design */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display), sans-serif;
+}
+
+/* Custom Utilities */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 
-  .container-custom {
-    @apply max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8;
+  .glass-nav {
+    @apply backdrop-blur-md bg-black/10 border-b border-white/5;
   }
+
+  .text-neon {
+    color: var(--color-neon);
+  }
+
+  .bg-neon {
+    background-color: var(--color-neon);
+  }
+
+  .border-neon {
+    border-color: var(--color-neon);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
 }

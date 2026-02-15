@@ -1,58 +1,127 @@
-
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { Plus, Trash2, Edit, Package } from "lucide-react";
-import Button from "@/components/ui/Button";
-import Image from "next/image";
-import { supabase } from "@/lib/supabaseClient";
-import InventoryTable from "@/components/admin/InventoryTable";
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer
+} from "recharts";
+import {
+    DollarSign,
+    Users,
+    CreditCard,
+    Activity
+} from "lucide-react";
 
-// Mock Data
-const initialProducts = [
-    { id: "1", name: "Air Max Pulse", sku: "AMP-001", stock: 45, price: 150000, category: "Men's Shoes", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop" },
-    { id: "2", name: "Zoom Freak 4", sku: "ZF4-002", stock: 8, price: 130000, category: "Basketball Shoes", image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=2012&auto=format&fit=crop" },
+const data = [
+    { name: "Lun", total: 120000 },
+    { name: "Mar", total: 240000 },
+    { name: "Mié", total: 180000 },
+    { name: "Jue", total: 320000 },
+    { name: "Vie", total: 450000 },
+    { name: "Sáb", total: 580000 },
+    { name: "Dom", total: 390000 },
 ];
 
-export default function AdminDashboard() {
-    const [products, setProducts] = useState(initialProducts);
-    const [loading, setLoading] = useState(false);
+const recentSales = [
+    { name: "Juan Pérez", email: "juan@example.com", amount: "+$129.990", avatar: "JP" },
+    { name: "Sofia Silva", email: "sofia@example.com", amount: "+$89.990", avatar: "SS" },
+    { name: "Carlos Ruiz", email: "carlos@example.com", amount: "+$210.000", avatar: "CR" },
+    { name: "Ana Gomez", email: "ana@example.com", amount: "+$150.000", avatar: "AG" },
+    { name: "Pedro Diaz", email: "pedro@example.com", amount: "+$99.990", avatar: "PD" },
+];
 
-    const handleDelete = async (id: string) => {
-        if (confirm("Are you sure you want to delete this product?")) {
-            setProducts(products.filter(p => p.id !== id));
-        }
-    };
-
-    const handleEdit = (id: string) => {
-        console.log("Edit product", id);
-        // Navigate to edit page or open modal
-    };
-
+export default function OverviewPage() {
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-500 pt-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="flex justify-between items-center mb-12">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your store's inventory.</p>
+        <div className="space-y-8">
+            {/* Title */}
+            <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
+            </div>
+
+            {/* KPI Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Card title="Ingresos Totales" value="$2.450.900" icon={DollarSign} subtext="+20.1% desde el mes pasado" />
+                <Card title="Ventas" value="+27" icon={CreditCard} subtext="+15% desde el mes pasado" />
+                <Card title="Pedidos Activos" value="12" icon={Activity} subtext="+4 nuevos en la última hora" />
+                <Card title="Productos sin Stock" value="3" icon={Activity} subtext="Requiere atención inmediata" isWarning />
+            </div>
+
+            {/* Charts & Recent Sales */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+
+                {/* Main Chart */}
+                <div className="col-span-4 rounded-xl border border-zinc-800 bg-zinc-950 p-6">
+                    <h3 className="font-semibold text-lg mb-4 text-white">Resumen de Ingresos</h3>
+                    <div className="h-[350px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={data}>
+                                <XAxis
+                                    dataKey="name"
+                                    stroke="#52525b"
+                                    fontSize={12}
+                                    tickLine={false}
+                                    axisLine={false}
+                                />
+                                <YAxis
+                                    stroke="#52525b"
+                                    fontSize={12}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickFormatter={(value) => `$${value}`}
+                                />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a" }}
+                                    itemStyle={{ color: "#fff" }}
+                                    cursor={{ fill: 'transparent' }}
+                                />
+                                <Bar
+                                    dataKey="total"
+                                    fill="var(--color-neon)"
+                                    radius={[4, 4, 0, 0]}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
-
-                    <Link href="/admin/add">
-                        <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
-                            <Plus className="w-5 h-5" /> Add New Product
-                        </Button>
-                    </Link>
                 </div>
 
-                <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden p-6">
-                    <InventoryTable
-                        products={products}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                    />
+                {/* Recent Sales */}
+                <div className="col-span-3 rounded-xl border border-zinc-800 bg-zinc-950 p-6">
+                    <h3 className="font-semibold text-lg mb-4 text-white">Ventas Recientes</h3>
+                    <div className="space-y-6">
+                        {recentSales.map((sale, i) => (
+                            <div key={i} className="flex items-center">
+                                <div className="h-9 w-9 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-white mr-4">
+                                    {sale.avatar}
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-sm font-medium leading-none text-white">{sale.name}</p>
+                                    <p className="text-xs text-zinc-400">{sale.email}</p>
+                                </div>
+                                <div className="ml-auto font-medium text-white">{sale.amount}</div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
+
+            </div>
+        </div>
+    );
+}
+
+function Card({ title, value, icon: Icon, subtext, isWarning }: any) {
+    return (
+        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-6 text-card-foreground shadow-sm">
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <h3 className="tracking-tight text-sm font-medium text-zinc-400">{title}</h3>
+                <Icon className={`h-4 w-4 ${isWarning ? 'text-red-500' : 'text-zinc-400'}`} />
+            </div>
+            <div className="pt-2">
+                <div className="text-2xl font-bold text-white">{value}</div>
+                <p className="text-xs text-zinc-500 mt-1">{subtext}</p>
             </div>
         </div>
     );

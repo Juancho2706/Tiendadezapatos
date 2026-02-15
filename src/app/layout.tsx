@@ -1,6 +1,6 @@
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Archivo_Black, Inter_Tight } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
@@ -18,6 +18,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const archivoBlack = Archivo_Black({
+  weight: "400",
+  variable: "--font-archivo-black",
+  subsets: ["latin"],
+});
+
+const interTight = Inter_Tight({
+  variable: "--font-inter-tight",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "SneakHub - Premium Footwear Store",
   description: "The best place to buy premium sneakers.",
@@ -31,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-black text-black dark:text-white min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} ${archivoBlack.variable} ${interTight.variable} antialiased bg-[var(--color-base)] text-white min-h-screen flex flex-col font-sans`}
       >
         <LanguageProvider>
           <CartProvider>

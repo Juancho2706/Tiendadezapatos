@@ -1,187 +1,183 @@
 
 "use client";
 
-import { motion } from "framer-motion";
-import Button from "@/components/ui/Button";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import Image from "next/image";
-import ProductCarousel from "@/components/ui/ProductCarousel";
-
-// Mock Data - Extended to 15 items
-const featuredProducts = Array.from({ length: 15 }).map((_, i) => ({
-  id: i + 1,
-  name: `Air Max Pulse ${i + 1}`,
-  price: 150000 + (i * 1000),
-  category: i % 2 === 0 ? "HOMBRE" : "MUJER",
-  image: [
-    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=2012&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1525966222134-fcfa99ca9776?q=80&w=998&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?q=80&w=2050&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1974&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=1964&auto=format&fit=crop"
-  ][i % 6]
-}));
-
-const categories = [
-  { name: "HOMBRE", image: "https://images.unsplash.com/photo-1488161628813-99c974fc5b7b?q=80&w=2070&auto=format&fit=crop", link: "/shop?category=Hombre" },
-  { name: "MUJER", image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=2080&auto=format&fit=crop", link: "/shop?category=Mujer" },
-  { name: "ACCESORIOS", image: "https://images.unsplash.com/photo-1520975661595-dc22803a6058?q=80&w=2067&auto=format&fit=crop", link: "/shop?category=Accesorios" },
-];
+import Link from "next/link";
+import { ArrowRight, Star } from "lucide-react";
+import { motion } from "framer-motion";
+import BestSellers from "@/components/ui/BestSellers";
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="bg-[var(--color-base)] min-h-screen text-white overflow-hidden">
 
-      {/* Hero Section - Video Background */}
-      <section className="relative h-[85vh] w-full overflow-hidden">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src="/hero_optimized.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-black/30" /> {/* Slightly darker overlay for video text legibility */}
+      {/* 1. IMMERSIVE HERO SECTION */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0 z-0">
+          {/* Fallback image or video placeholder */}
+          <Image
+            src="/Hero New.png"
+            alt="Hero Background"
+            fill
+            className="object-cover opacity-60"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-black/20" />
+        </div>
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+        {/* Content */}
+        <div className="relative z-10 container-custom text-center md:text-left pt-20">
+          <motion.div
+            initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-5xl md:text-8xl font-black tracking-tighter uppercase mb-6 drop-shadow-2xl"
           >
-            STREET CULTURE
-          </motion.h1>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          >
-            <Link href="/shop">
-              <Button size="lg" className="bg-white text-black hover:bg-gray-100 border-none rounded-none px-12 py-5 text-sm font-bold tracking-widest uppercase shadow-xl transition-transform hover:scale-105">
-                DESCUBRIR
-              </Button>
-            </Link>
+            <h1 className="text-6xl md:text-9xl font-display font-black leading-[0.9] tracking-tighter mb-6 uppercase">
+              El Flow Que <br />
+              <span className="text-transparent stroke-text" style={{ WebkitTextStroke: "2px white" }}>Pisa Fuerte</span>
+            </h1>
+
+            <p className="text-lg md:text-xl text-gray-300 max-w-xl mb-10 font-medium tracking-wide">
+              Las siluetas más duras de Viña y todo Chile. <br className="hidden md:block" />
+              Streetwear premium, sin atajos.
+            </p>
+
+            <div className="flex flex-col md:flex-row gap-4 justify-center md:justify-start">
+              <Link
+                href="/shop"
+                className="bg-[var(--color-neon)] text-white px-8 py-4 font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-colors duration-300 flex items-center justify-center gap-2"
+              >
+                Ver Colección <ArrowRight className="w-5 h-5" />
+              </Link>
+              <Link
+                href="/shop?sort=newest"
+                className="border border-white text-white px-8 py-4 font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-colors duration-300"
+              >
+                Nuevos Drops
+              </Link>
+            </div>
           </motion.div>
         </div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 text-white/50"
+        >
+          <div className="w-[1px] h-16 bg-gradient-to-b from-transparent via-white to-transparent" />
+        </motion.div>
       </section>
 
-      {/* Category Grid */}
-      <section className="container-custom py-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {categories.map((cat, idx) => (
-            <Link href={cat.link} key={idx} className="group relative aspect-[4/5] overflow-hidden">
-              <Image
-                src={cat.image}
-                alt={cat.name}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <h2 className="text-white text-4xl font-black tracking-tighter uppercase border-b-4 border-transparent group-hover:border-white transition-all pb-1 italic">
-                  {cat.name}
-                </h2>
-              </div>
-            </Link>
+      {/* 2. INFINITE MARQUEE */}
+      <div className="bg-[var(--color-neon)] py-3 overflow-hidden relative z-20">
+        <div className="flex whitespace-nowrap animate-marquee">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="flex items-center mx-4">
+              <span className="text-[var(--color-base)] mx-4 font-black">✦</span>
+              <span className="text-sm md:text-base font-black tracking-[0.2em] uppercase text-[var(--color-base)]">ENVÍOS A TODO CHILE</span>
+              <span className="text-[var(--color-base)] mx-4 font-black">✦</span>
+              <span className="text-sm md:text-base font-black tracking-[0.2em] uppercase text-[var(--color-base)]">3 CUOTAS SIN INTERÉS</span>
+              <span className="text-[var(--color-base)] mx-4 font-black">✦</span>
+              <span className="text-sm md:text-base font-black tracking-[0.2em] uppercase text-[var(--color-base)]">ZAPATILLAS ORIGINALES</span>
+              <span className="text-[var(--color-base)] mx-4 font-black">✦</span>
+              <span className="text-sm md:text-base font-black tracking-[0.2em] uppercase text-[var(--color-base)]">NUEVO DROP VIERNES</span>
+            </div>
           ))}
         </div>
-      </section>
+      </div>
 
-      {/* New Arrivals Slider - Extended Width */}
-      <section className="py-20 mb-20 bg-[#fcfcfc] border-y border-gray-100">
-        <div className="container-custom relative">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-            <div>
-              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-2 italic">NEW ARRIVALS</h2>
-              <p className="text-gray-500 uppercase tracking-widest text-xs font-bold">Lo último en tecnología y estilo.</p>
+      {/* 3. TRENDING NOW (BENTO GRID) */}
+      <section className="py-24 container-custom">
+        <div className="flex items-center justify-between mb-12">
+          <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter">
+            Lo Que Se <span className="text-[var(--color-neon)]">Està Llevando</span>
+          </h2>
+          <Link href="/shop" className="hidden md:flex items-center gap-2 text-sm font-bold uppercase tracking-widest border-b border-[var(--color-neon)] pb-1 hover:text-[var(--color-neon)] transition-colors">
+            Ver Todo
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-[repeat(2,500px)] md:h-[800px]">
+          {/* Item 1 - Large (2x2) */}
+          <div className="md:col-span-2 md:row-span-2 relative group overflow-hidden border border-white/10 bg-[var(--color-dark-slate)]">
+            <Image src="/Jordan 3.png" alt="Jordan 3" fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="absolute top-4 left-4 z-10">
+              <span className="bg-[var(--color-neon)] text-black text-xs font-black px-3 py-1 uppercase tracking-wider">HOT</span>
             </div>
-            <Link href="/shop" className="group flex items-center gap-2 text-sm font-bold uppercase hover:text-gray-600 transition-colors bg-white px-6 py-3 border border-gray-200 rounded-full hover:border-black">
-              VER TODO <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+              <h3 className="text-3xl font-black uppercase mb-2">Air Jordan 3 Retro</h3>
+              <p className="text-sm text-gray-300 mb-4">El clásico redefinido para las calles.</p>
+              <span className="text-xl font-bold text-[var(--color-neon)]">$189.990</span>
+            </div>
           </div>
 
-          {/* Carousel Component */}
-          <ProductCarousel products={featuredProducts} />
-        </div>
-      </section>
+          {/* Item 2 - Tall (1x2) */}
+          <div className="md:col-span-1 md:row-span-2 relative group overflow-hidden border border-white/10 bg-[var(--color-dark-slate)]">
+            <Image src="/Hombre 1.png" alt="Hombre" fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="absolute top-4 left-4 z-10">
+              <span className="bg-white text-black text-xs font-black px-3 py-1 uppercase tracking-wider">NUEVO</span>
+            </div>
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-4 text-center">
+              <h3 className="text-2xl font-black uppercase mb-2">Street Culture</h3>
+              <Link href="/shop?category=Hombre" className="underline decoration-[var(--color-neon)] decoration-2 underline-offset-4 font-bold">Ver Colección</Link>
+            </div>
+          </div>
 
-      {/* Shop by Gender Section - Larger & Taller */}
-      <section className="w-full px-4 md:px-8 py-20 mb-20 scroll-mt-20">
-        <div className="max-w-[1800px] mx-auto">
-          <h2 className="text-4xl md:text-6xl font-black mb-12 tracking-tighter uppercase text-center md:text-left">Compra por género</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[75vh] min-h-[600px]">
-            {/* Hombre */}
-            <Link href="/shop?category=Hombre" className="relative group overflow-hidden bg-gray-100 h-full w-full">
-              <Image
-                src="/Hombre 1.png"
-                alt="Hombre"
-                fill
-                className="object-cover transition-transform duration-1000 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 flex items-end justify-center pb-12 bg-black/10 group-hover:bg-black/20 transition-colors">
-                <span className="bg-white text-black px-12 py-5 rounded-full text-base font-black uppercase tracking-widest shadow-xl hover:bg-black hover:text-white transition-colors">
-                  Hombre
-                </span>
-              </div>
-            </Link>
+          {/* Item 3 - Square (1x1) */}
+          <div className="relative group overflow-hidden border border-white/10 bg-[var(--color-dark-slate)]">
+            <Image src="/Mujer 1.png" alt="Mujer" fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="absolute top-4 left-4 z-10">
+              <span className="bg-red-600 text-white text-xs font-black px-3 py-1 uppercase tracking-wider">30% OFF</span>
+            </div>
+            <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black to-transparent">
+              <h4 className="font-bold uppercase text-sm">Essentials Mujer</h4>
+            </div>
+          </div>
 
-            {/* Mujer */}
-            <Link href="/shop?category=Mujer" className="relative group overflow-hidden bg-gray-100 h-full w-full">
-              <Image
-                src="/Mujer 1.png"
-                alt="Mujer"
-                fill
-                className="object-cover transition-transform duration-1000 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 flex items-end justify-center pb-12 bg-black/10 group-hover:bg-black/20 transition-colors">
-                <span className="bg-white text-black px-12 py-5 rounded-full text-base font-black uppercase tracking-widest shadow-xl hover:bg-black hover:text-white transition-colors">
-                  Mujer
-                </span>
-              </div>
-            </Link>
-
-            {/* Niños */}
-            <Link href="/shop?category=Ninos" className="relative group overflow-hidden bg-gray-100 h-full w-full">
-              <Image
-                src="/Nino P1.webp"
-                alt="Niños"
-                fill
-                className="object-cover transition-transform duration-1000 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 flex items-end justify-center pb-12 bg-black/10 group-hover:bg-black/20 transition-colors">
-                <span className="bg-white text-black px-12 py-5 rounded-full text-base font-black uppercase tracking-widest shadow-xl hover:bg-black hover:text-white transition-colors">
-                  Niños
-                </span>
-              </div>
-            </Link>
+          {/* Item 4 - Square (1x1) */}
+          <div className="relative group overflow-hidden border border-white/10 bg-[var(--color-dark-slate)]">
+            <div className="absolute inset-0 flex items-center justify-center bg-[var(--color-base)]">
+              <span className="text-[var(--color-neon)] text-6xl font-black opacity-20 rotate-12">DROPS</span>
+            </div>
+            <div className="relative z-10 h-full flex flex-col items-center justify-center p-6 text-center">
+              <Star className="w-12 h-12 text-[var(--color-neon)] mb-4" />
+              <h3 className="text-xl font-black uppercase mb-2">Únete al Club</h3>
+              <p className="text-xs text-gray-400 mb-4">Acceso anticipado a lanzamientos exclusivos.</p>
+              <button className="border border-white/20 hover:bg-white hover:text-black hover:border-white transition-all px-4 py-2 text-xs font-bold uppercase tracking-widest">
+                Suscribirse
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Footer Banner */}
-      {/* Footer Banner - Minimalist with Contrast */}
-      <section className="py-24 text-center px-4 bg-[#f4f4f5]">
-        <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-6">ÚNETE AL CLUB</h3>
-        <p className="text-gray-500 max-w-lg mx-auto mb-10 font-bold tracking-wide uppercase text-xs">
-          Suscríbete para recibir acceso exclusivo a lanzamientos limitados y descuentos especiales.
-        </p>
-        <div className="max-w-md mx-auto flex border-b border-black pb-2">
-          <input
-            type="email"
-            placeholder="TU EMAIL"
-            className="flex-1 bg-transparent px-4 py-2 text-sm font-bold uppercase placeholder:text-gray-400 focus:outline-none"
-          />
-          <button className="text-black px-4 py-2 text-sm font-black uppercase tracking-widest hover:text-gray-600 transition-colors">
-            ENVIAR
-          </button>
+      <BestSellers />
+
+      {/* Newsletter Section (Updated visuals) */}
+      <section className="py-24 border-t border-white/10 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-[var(--color-neon)] opacity-5 blur-[100px] pointer-events-none" />
+        <div className="max-w-2xl mx-auto px-4 text-center relative z-10">
+          <h2 className="text-3xl md:text-5xl font-display font-black uppercase mb-6">
+            No Te Pierdas <br /><span className="text-[var(--color-neon)]">Nada</span>
+          </h2>
+          <p className="text-gray-400 mb-8">
+            Suscríbete para recibir noticias sobre nuevos lanzamientos, ofertas exclusivas y eventos.
+          </p>
+          <form className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="email"
+              placeholder="TU EMAIL"
+              className="flex-1 bg-white/5 border border-white/10 px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-[var(--color-neon)] transition-colors text-sm font-bold tracking-widest"
+            />
+            <button type="button" className="bg-[var(--color-neon)] text-black px-8 py-4 font-bold uppercase tracking-widest hover:bg-white transition-colors">
+              Enviar
+            </button>
+          </form>
         </div>
       </section>
-
     </div>
   );
 }
