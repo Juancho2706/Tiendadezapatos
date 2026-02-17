@@ -108,6 +108,17 @@ function LoginForm() {
                     </div>
                 )}
 
+                {/* Demo Credentials */}
+                <div className="p-4 bg-[var(--color-neon)]/10 border border-[var(--color-neon)]/20 rounded-lg text-sm mb-6">
+                    <p className="font-bold text-[var(--color-neon)] uppercase tracking-wider text-xs mb-2">Credenciales de Demo:</p>
+                    <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-zinc-300">
+                        <span className="text-zinc-500">Email:</span>
+                        <span className="font-mono">admin@admin.com</span>
+                        <span className="text-zinc-500">Pass:</span>
+                        <span className="font-mono">thisisadmin</span>
+                    </div>
+                </div>
+
                 <form onSubmit={handleLogin} className="space-y-5">
                     <div className="space-y-2">
                         <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Email</label>
