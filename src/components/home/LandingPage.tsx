@@ -44,6 +44,7 @@ export default function LandingPage({ bestSellers }: LandingPageProps) {
                         fill
                         className="object-cover scale-110"
                         priority
+                        sizes="100vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-black/50 to-transparent" />
                     <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/80 via-transparent to-transparent" />
@@ -171,7 +172,13 @@ export default function LandingPage({ bestSellers }: LandingPageProps) {
                         transition={{ duration: 0.6, delay: 0 }}
                         className="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-xl bg-[#141414] min-h-[400px]"
                     >
-                        <Image src="/Hombre 1.png" alt="Street Culture Hombre" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <Image
+                            src="/Hombre 1.png"
+                            alt="Street Culture Hombre"
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                        />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
                         <div className="absolute top-4 left-4 z-10">
                             <span className="bg-[var(--color-neon)] text-black text-[10px] font-black px-3 py-1.5 uppercase tracking-wider rounded-full">New Drop</span>
@@ -194,7 +201,13 @@ export default function LandingPage({ bestSellers }: LandingPageProps) {
                         transition={{ duration: 0.6, delay: 0.1 }}
                         className="md:col-span-1 md:row-span-2 relative group overflow-hidden rounded-xl bg-[#141414] min-h-[300px]"
                     >
-                        <Image src="/Mujer 1.png" alt="Essentials Mujer" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <Image
+                            src="/Mujer 1.png"
+                            alt="Essentials Mujer"
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                            sizes="(max-width: 768px) 100vw, 25vw"
+                        />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
                         <div className="absolute top-4 left-4 z-10">
                             <span className="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 uppercase tracking-wider rounded-full">30% Off</span>
@@ -237,7 +250,13 @@ export default function LandingPage({ bestSellers }: LandingPageProps) {
                         transition={{ duration: 0.6, delay: 0.3 }}
                         className="relative group overflow-hidden rounded-xl min-h-[200px]"
                     >
-                        <Image src="/Nino P1.webp" alt="Niños" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <Image
+                            src="/Nino P1.webp"
+                            alt="Niños"
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                            sizes="(max-width: 768px) 100vw, 25vw"
+                        />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                         <div className="absolute top-4 left-4 z-10">
                             <span className="bg-white text-black text-[10px] font-black px-3 py-1.5 uppercase tracking-wider rounded-full">Nuevo</span>

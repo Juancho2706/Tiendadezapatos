@@ -29,7 +29,7 @@ export const products = [
         salePrice: 229990,
         description: "Diseñadas por Kanye West, las Yeezy Boost 350 V2 son el epítome del estilo urbano contemporáneo. Cuentan con una parte superior de Primeknit reestructurado y la tecnología Boost patentada de Adidas.",
         images: [
-            "https://images.unsplash.com/photo-1586525198428-225f6f12c240?w=800&q=80",
+            "https://images.unsplash.com/photo-1620794341491-76be6eeb6946?w=800&q=80",
             "https://images.unsplash.com/photo-1617614838645-0d62eb74aa2b?w=800&q=80",
         ],
         brand: "Adidas",

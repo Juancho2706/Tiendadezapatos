@@ -51,6 +51,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                     placeholder="blur"
                     blurDataURL={BLUR_DATA_URL}
                     onError={() => setImgSrc("/hero_new.jpg")}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 />
 
                 {/* Sale badge */}
