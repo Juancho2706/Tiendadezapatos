@@ -31,10 +31,17 @@ export default function OrdersPage() {
                 data.map(async (order: any) => {
                     let customerName = "Invitado";
                     let customerEmail = "";
+
                     if (order.user_id) {
                         const { data: profile } = await (supabase.from("profiles") as any).select("full_name").eq("id", order.user_id).single();
                         customerName = profile?.full_name || "Cliente";
+                    } else if (order.shipping_details) {
+                        // Handle guest checkout names
+                        const { firstName, lastName, full_name } = order.shipping_details;
+                        if (full_name) customerName = full_name;
+                        else if (firstName && lastName) customerName = `${firstName} ${lastName}`;
                     }
+
                     return { ...order, customerName, customerEmail };
                 })
             );

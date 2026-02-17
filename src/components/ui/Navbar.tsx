@@ -73,6 +73,9 @@ export default function Navbar() {
 
                     {/* Right Icons */}
                     <div className="hidden lg:flex items-center gap-6 z-50">
+                        <Link href="/admin" className="text-zinc-400 hover:text-[var(--color-neon)] transition-colors text-xs font-bold border border-zinc-800 px-3 py-1.5 rounded-full hover:border-[var(--color-neon)] hover:bg-white/5">
+                            ADMIN
+                        </Link>
                         <button className="text-zinc-400 hover:text-white transition-colors">
                             <Search className="w-5 h-5" />
                         </button>

@@ -89,15 +89,21 @@ export default function DashboardPage() {
             if (recent) {
                 const withProfiles = await Promise.all(
                     recent.map(async (order: any) => {
+                        let customerName = "Invitado";
                         if (order.user_id) {
                             const { data: profile } = await (supabase
                                 .from("profiles") as any)
                                 .select("full_name")
                                 .eq("id", order.user_id)
                                 .single();
-                            return { ...order, customerName: profile?.full_name || "Cliente" };
+                            customerName = profile?.full_name || "Cliente";
+                        } else if (order.shipping_details) {
+                            // Handle guest checkout names
+                            const { firstName, lastName, full_name } = order.shipping_details;
+                            if (full_name) customerName = full_name;
+                            else if (firstName && lastName) customerName = `${firstName} ${lastName}`;
                         }
-                        return { ...order, customerName: "Invitado" };
+                        return { ...order, customerName };
                     })
                 );
                 setRecentOrders(withProfiles);
