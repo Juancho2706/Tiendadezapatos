@@ -14,10 +14,11 @@ interface ProductCardProps {
         id: number | string;
         name: string;
         price: number;
-        salePrice?: number;
-        category: string;
+        salePrice?: number | null;
+        category: string | null;
         brand?: string;
-        image: string;
+        image?: string;
+        images?: string[];
     };
     index?: number;
 }
@@ -25,9 +26,9 @@ interface ProductCardProps {
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     const { addItem } = useCart();
 
-
-
-    const [imgSrc, setImgSrc] = useState(product.image);
+    // Determine initial image source: prefer images[0], fallback to image, fallback to placeholder
+    const initialImage = product.images?.[0] || product.image || "/placeholder.jpg";
+    const [imgSrc, setImgSrc] = useState(initialImage);
 
     const hasDiscount = product.salePrice && product.salePrice < product.price;
 
@@ -72,7 +73,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                                 id: product.id,
                                 name: product.name,
                                 price: product.salePrice || product.price,
-                                image: product.image,
+                                image: product.images?.[0] || product.image || "/placeholder.jpg",
                                 quantity: 1,
                                 size: 42,
                                 color: "default",
