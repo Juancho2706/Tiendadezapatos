@@ -42,12 +42,24 @@ export async function generateMetadata(
 export default async function ProductPage({ params }: Props) {
     const id = (await params).id;
     const product = await getProductById(id);
-    const relatedProducts = product
+
+    // 1. Try to get related products by category
+    let relatedProducts = product
         ? await getProducts({ category: product.category || undefined, limit: 5 })
         : [];
 
-    // Filter out the current product from related products
-    const filteredRelatedProducts = relatedProducts.filter(p => p.id !== product?.id).slice(0, 4);
+    // Filter out current product
+    relatedProducts = relatedProducts.filter(p => p.id !== product?.id);
+
+    // 2. If we don't have enough, fetch best sellers or just other products to fill the gap
+    if (relatedProducts.length < 4) {
+        const moreProducts = await getProducts({ limit: 10, sort: "newest" });
+        const moreFiltered = moreProducts.filter(p => p.id !== product?.id && !relatedProducts.find(rp => rp.id === p.id));
+        relatedProducts = [...relatedProducts, ...moreFiltered];
+    }
+
+    // 3. Take top 4
+    const finalRelatedProducts = relatedProducts.slice(0, 4);
 
     if (!product) {
         notFound();
@@ -78,7 +90,7 @@ export default async function ProductPage({ params }: Props) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <ProductView product={product} relatedProducts={filteredRelatedProducts} />
+            <ProductView product={product} relatedProducts={finalRelatedProducts} />
         </>
     );
 }
