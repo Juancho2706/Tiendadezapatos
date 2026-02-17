@@ -153,8 +153,15 @@ export default function Navbar() {
                         </div>
 
                         {/* Bottom */}
-                        <div className="px-8 pb-10 text-xs text-zinc-500 font-medium tracking-widest uppercase">
-                            <p>Envío gratis +$50.000</p>
+                        <div className="px-8 pb-10 flex flex-col gap-4">
+                            <Link
+                                href="/admin"
+                                onClick={() => setIsOpen(false)}
+                                className="text-zinc-400 hover:text-[var(--color-neon)] transition-colors text-sm font-bold border border-zinc-800 px-4 py-3 rounded-full hover:border-[var(--color-neon)] hover:bg-white/5 text-center w-full"
+                            >
+                                ADMIN DASHBOARD
+                            </Link>
+                            <p className="text-xs text-zinc-500 font-medium tracking-widest uppercase text-center">Envío gratis +$50.000</p>
                         </div>
                     </motion.div>
                 )}
