@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
-import { products } from "@/lib/mockData";
+import { getProducts } from "@/services/products";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = "https://sneakhub.cl";
 
     // Static routes
@@ -16,11 +16,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }));
 
     // Dynamic routes (Products)
+    const products = await getProducts();
     const productRoutes = products.map((product) => ({
         url: `${baseUrl}/product/${product.id}`,
         lastModified: new Date(),
         changeFrequency: "weekly" as const,
-        priority: 0.9,
+        priority: 0.8,
     }));
 
     return [...routes, ...productRoutes];

@@ -30,7 +30,7 @@ export default function LandingPage({ bestSellers }: LandingPageProps) {
     const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
     return (
-        <div className="bg-[#0a0a0a] min-h-screen text-white overflow-hidden">
+        <div className="bg-[#0a0a0a] min-h-screen text-white overflow-hidden relative">
 
             {/* ═══════════════════════════════════════════ */}
             {/* 1. HERO — Fullscreen with Parallax */}
