@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { motion } from "framer-motion";
@@ -26,6 +27,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
 
 
+    const [imgSrc, setImgSrc] = useState(product.image);
+
     const hasDiscount = product.salePrice && product.salePrice < product.price;
 
     return (
@@ -41,12 +44,13 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 className="block relative w-full aspect-square overflow-hidden rounded-xl bg-[#141414] mb-4"
             >
                 <Image
-                    src={product.image}
+                    src={imgSrc}
                     alt={product.name}
                     fill
                     className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     placeholder="blur"
                     blurDataURL={BLUR_DATA_URL}
+                    onError={() => setImgSrc("/hero_new.jpg")}
                 />
 
                 {/* Sale badge */}

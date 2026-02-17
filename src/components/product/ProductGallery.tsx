@@ -48,6 +48,7 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                             priority
                             placeholder="blur"
                             blurDataURL={BLUR_DATA_URL}
+                            onError={() => setActiveImage("/hero_new.jpg")}
                         />
                     </motion.div>
                 </AnimatePresence>
@@ -89,6 +90,11 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                             className="object-cover"
                             placeholder="blur"
                             blurDataURL={BLUR_DATA_URL}
+                            onError={(e) => {
+                                // Hide broken thumbnail or replace source
+                                e.currentTarget.srcset = "/hero_new.jpg";
+                                e.currentTarget.src = "/hero_new.jpg";
+                            }}
                         />
                     </button>
                 ))}
