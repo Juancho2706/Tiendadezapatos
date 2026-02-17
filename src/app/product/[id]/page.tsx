@@ -1,6 +1,6 @@
 import { Metadata, ResolvingMetadata } from "next";
 import ProductView from "@/components/product/ProductView";
-import { getProductById } from "@/services/products";
+import { getProductById, getProducts } from "@/services/products";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -42,6 +42,12 @@ export async function generateMetadata(
 export default async function ProductPage({ params }: Props) {
     const id = (await params).id;
     const product = await getProductById(id);
+    const relatedProducts = product
+        ? await getProducts({ category: product.category || undefined, limit: 5 })
+        : [];
+
+    // Filter out the current product from related products
+    const filteredRelatedProducts = relatedProducts.filter(p => p.id !== product?.id).slice(0, 4);
 
     if (!product) {
         notFound();
@@ -72,7 +78,7 @@ export default async function ProductPage({ params }: Props) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <ProductView product={product} />
+            <ProductView product={product} relatedProducts={filteredRelatedProducts} />
         </>
     );
 }

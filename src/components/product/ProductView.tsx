@@ -10,23 +10,13 @@ import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { formatCLP } from "@/lib/utils";
 
-// Related products could also be moved to mockData or passed as props, 
-// but for now we keep them here or import them if they were in mockData.
-// Given the original file had them locally, we'll keep them locally or move them.
-// Let's move them to this file since they are static for now.
-
-const relatedProducts = [
-    { id: 2, name: "Zoom Freak 5", brand: "Nike", price: 129990, salePrice: 99990, category: "Basketball", image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop" },
-    { id: 3, name: "Forum Low", brand: "Adidas", price: 109990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1525966222134-fcfa99ca9776?q=80&w=800&auto=format&fit=crop" },
-    { id: 4, name: "Air Force 1 '07", brand: "Nike", price: 119990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?q=80&w=800&auto=format&fit=crop" },
-    { id: 5, name: "Dunk Low Retro", brand: "Nike", price: 134990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800&auto=format&fit=crop" },
-];
-
+// Related products passed as props
 interface ProductViewProps {
-    product: any; // Using any for now to match current codebase flexibility, ideally should be typed
+    product: any;
+    relatedProducts: any[];
 }
 
-export default function ProductView({ product }: ProductViewProps) {
+export default function ProductView({ product, relatedProducts }: ProductViewProps) {
     const { addItem } = useCart();
 
     // Convert ID to number if needed, but we passed the product object directly so we use product.id
