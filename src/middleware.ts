@@ -35,7 +35,7 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     // PROTECTED ROUTES
-    if (request.nextUrl.pathname.startsWith("/admin")) {
+    if (request.nextUrl.pathname.startsWith("/admin") && !request.nextUrl.pathname.startsWith("/admin/login")) {
 
         // 1. Check if user is logged in
         if (!user) {
