@@ -62,7 +62,7 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 z-10 pointer-events-none hidden md:block"
                             style={{
-                                backgroundImage: `url(${activeImage})`,
+                                backgroundImage: `url("${activeImage}")`,
                                 backgroundPosition: `${mousePosition.x}% ${mousePosition.y}%`,
                                 backgroundSize: "200%",
                                 backgroundColor: "#141414",
