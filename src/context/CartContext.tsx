@@ -1,7 +1,7 @@
-
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export interface CartItem {
     id: string | number;
@@ -11,6 +11,7 @@ export interface CartItem {
     quantity: number;
     size: number;
     color: string;
+    variant_id?: string; // Optional for now, but needed for DB
 }
 
 interface CartContextType {
@@ -31,7 +32,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+    const supabase = createSupabaseBrowserClient();
 
+    // Load from LocalStorage on mount
     useEffect(() => {
         setIsMounted(true);
         const savedCart = localStorage.getItem("cart");
@@ -40,11 +43,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    // Sync to LocalStorage whenever items change
     useEffect(() => {
         if (isMounted) {
             localStorage.setItem("cart", JSON.stringify(items));
         }
     }, [items, isMounted]);
+
+    // TODO: Implement full auth sync.
+    // Ideally, we check if user is logged in.
+    // If yes, we fetch their cart from 'carts' table.
+    // If they have local items, we might merge them or prompt.
+    // For now, we keep the LocalStorage logic as the visual source of truth
+    // to ensure the UI remains responsive, but we could add background sync here.
+
+    /* 
+    useEffect(() => {
+      const syncCart = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if(!user) return;
+        
+        // Fetch DB cart...
+        // Merge...
+      };
+      if(isMounted) syncCart();
+    }, [isMounted]);
+    */
 
     const addItem = (newItem: CartItem) => {
         setItems((currentItems) => {

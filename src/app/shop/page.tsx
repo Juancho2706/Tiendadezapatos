@@ -1,132 +1,176 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import ProductCard from "@/components/ui/ProductCard";
-import { Search, SlidersHorizontal, ChevronDown, Check } from "lucide-react";
-import Button from "@/components/ui/Button";
-import { useLanguage } from "@/context/LanguageContext";
+import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
+
 import { motion, AnimatePresence } from "framer-motion";
 
-// Mock Data
 const products = [
-    { id: 1, name: "Air Max Pulse", price: 150000, category: "Men's Shoes", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop" },
-    { id: 2, name: "Zoom Freak 4", price: 130000, category: "Basketball Shoes", image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=2012&auto=format&fit=crop" },
-    { id: 3, name: "Blazer Mid '77", price: 100000, category: "Casual", image: "https://images.unsplash.com/photo-1525966222134-fcfa99ca9776?q=80&w=998&auto=format&fit=crop" },
-    { id: 4, name: "Air Force 1 '07", price: 110000, category: "Lifestyle", image: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?q=80&w=2050&auto=format&fit=crop" },
-    { id: 5, name: "Nike Dunk Low", price: 120000, category: "Lifestyle", image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1974&auto=format&fit=crop" },
-    { id: 6, name: "Metcon 9", price: 140000, category: "Training", image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=1964&auto=format&fit=crop" },
+    { id: 1, name: "Air Max Pulse", brand: "Nike", price: 149990, category: "Hombre", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop" },
+    { id: 2, name: "Zoom Freak 5", brand: "Nike", price: 129990, salePrice: 99990, category: "Basketball", image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop" },
+    { id: 3, name: "Forum Low", brand: "Adidas", price: 109990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1525966222134-fcfa99ca9776?q=80&w=800&auto=format&fit=crop" },
+    { id: 4, name: "Air Force 1 '07", brand: "Nike", price: 119990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?q=80&w=800&auto=format&fit=crop" },
+    { id: 5, name: "Dunk Low Retro", brand: "Nike", price: 134990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800&auto=format&fit=crop" },
+    { id: 6, name: "Ultraboost 23", brand: "Adidas", price: 179990, salePrice: 139990, category: "Running", image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=800&auto=format&fit=crop" },
+    { id: 7, name: "550 White Green", brand: "New Balance", price: 124990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1539185441755-769473a23570?q=80&w=800&auto=format&fit=crop" },
+    { id: 8, name: "Suede Classic", brand: "Puma", price: 89990, category: "Hombre", image: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=800&auto=format&fit=crop" },
+    { id: 9, name: "RS-X Reinvention", brand: "Puma", price: 99990, category: "Mujer", image: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?q=80&w=800&auto=format&fit=crop" },
+];
+
+const categories = [
+    { id: "All", label: "Todos" },
+    { id: "Hombre", label: "Hombre" },
+    { id: "Mujer", label: "Mujer" },
+    { id: "Basketball", label: "Basketball" },
+    { id: "Running", label: "Running" },
+    { id: "Lifestyle", label: "Lifestyle" },
+];
+
+const brands = ["Nike", "Adidas", "New Balance", "Puma", "Jordan"];
+
+const sortOptions = [
+    { value: "newest", label: "Más Recientes" },
+    { value: "price-asc", label: "Precio: Bajo a Alto" },
+    { value: "price-desc", label: "Precio: Alto a Bajo" },
 ];
 
 export default function ShopPage() {
-    const { t } = useLanguage();
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
     const [showFilters, setShowFilters] = useState(false);
-    const [isLargeScreen, setIsLargeScreen] = useState(false);
+    const [sortBy, setSortBy] = useState("newest");
+    const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
 
-    useEffect(() => {
-        const checkScreenSize = () => {
-            setIsLargeScreen(window.innerWidth >= 1024);
-        };
+    const toggleBrand = (brand: string) => {
+        setSelectedBrands((prev) =>
+            prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
+        );
+    };
 
-        // Check immediately
-        checkScreenSize();
-
-        window.addEventListener("resize", checkScreenSize);
-        return () => window.removeEventListener("resize", checkScreenSize);
-    }, []);
-
-    const categories = [
-        { id: "All", label: t.shop.all },
-        { id: "Men's Shoes", label: t.shop.mens },
-        { id: "Women's Shoes", label: t.shop.womens },
-        { id: "Basketball Shoes", label: t.shop.basketball },
-        { id: "Running", label: t.shop.running },
-        { id: "Lifestyle", label: t.shop.lifestyle },
-    ];
-
-    const filteredProducts = products.filter(product => {
-        const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
-        const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
+    let filteredProducts = products.filter((p) => {
+        const matchesCat = selectedCategory === "All" || p.category === selectedCategory;
+        const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand);
+        return matchesCat && matchesSearch && matchesBrand;
     });
 
-    return (
-        <div className="min-h-screen bg-white pt-24 pb-20">
-            <div className="container-custom">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8 pb-8 border-b border-gray-100">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase mb-4">{t.shop.title}</h1>
-                        <p className="text-gray-400 font-bold tracking-widest text-xs uppercase">{filteredProducts.length} {t.shop.results}</p>
-                    </motion.div>
+    // Sort
+    if (sortBy === "price-asc") filteredProducts.sort((a, b) => a.price - b.price);
+    else if (sortBy === "price-desc") filteredProducts.sort((a, b) => b.price - a.price);
 
-                    <div className="flex items-center gap-4 w-full md:w-auto">
-                        <div className="relative flex-1 md:w-64">
-                            <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder={t.shop.searchPlaceholder}
-                                className="w-full pl-8 pr-4 py-2 text-sm font-bold uppercase tracking-wider border-b border-gray-200 focus:border-black focus:outline-none transition-colors placeholder:text-gray-300"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
-                        <Button
-                            variant="outline"
-                            className="hidden md:flex gap-2 border-gray-200 hover:border-black rounded-none px-6 py-2 text-xs font-bold uppercase tracking-widest"
-                            onClick={() => setShowFilters(!showFilters)}
+    return (
+        <div className="min-h-screen bg-[#0a0a0a] text-white pt-28 pb-20">
+            <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-10">
+
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="mb-10"
+                >
+                    <h1 className="text-5xl md:text-7xl font-display font-black uppercase tracking-[-0.04em] mb-2">
+                        Tienda
+                    </h1>
+                    <p className="text-xs text-zinc-500 font-bold tracking-widest uppercase">
+                        {filteredProducts.length} productos
+                    </p>
+                </motion.div>
+
+                {/* Toolbar */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10 pb-6 border-b border-white/5">
+                    <div className="relative flex-1 max-w-sm w-full">
+                        <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                        <input
+                            type="text"
+                            placeholder="Buscar..."
+                            className="w-full pl-7 pr-4 py-2 text-sm bg-transparent border-b border-white/10 focus:border-[var(--color-neon)] focus:outline-none transition-colors placeholder:text-zinc-600 font-bold tracking-wider uppercase"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="bg-[#141414] border border-white/10 px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-zinc-300 focus:outline-none focus:border-[var(--color-neon)] transition-colors appearance-none cursor-pointer"
                         >
-                            <SlidersHorizontal className="w-3 h-3" /> {t.shop.filters}
-                        </Button>
+                            {sortOptions.map((o) => (
+                                <option key={o.value} value={o.value}>{o.label}</option>
+                            ))}
+                        </select>
+
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className={`flex items-center gap-2 px-4 py-2.5 border text-xs font-bold uppercase tracking-widest transition-all ${showFilters ? "border-[var(--color-neon)] text-[var(--color-neon)]" : "border-white/10 text-zinc-400 hover:text-white hover:border-white/30"
+                                }`}
+                        >
+                            <SlidersHorizontal className="w-3.5 h-3.5" /> Filtros
+                        </button>
                     </div>
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-16">
+                <div className="flex gap-10">
                     {/* Sidebar Filters */}
                     <AnimatePresence>
-                        {(showFilters || isLargeScreen) && (
+                        {showFilters && (
                             <motion.aside
-                                initial={{ opacity: 0, width: 0 }}
-                                animate={{ opacity: 1, width: "auto" }}
-                                exit={{ opacity: 0, width: 0 }}
-                                className="hidden lg:block w-64 space-y-12 shrink-0"
+                                initial={{ opacity: 0, width: 0, marginRight: 0 }}
+                                animate={{ opacity: 1, width: 240, marginRight: 0 }}
+                                exit={{ opacity: 0, width: 0, marginRight: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="hidden md:block shrink-0 overflow-hidden"
                             >
-                                <div>
-                                    <h3 className="font-bold uppercase tracking-widest text-xs mb-6 text-gray-400">{t.shop.categories}</h3>
-                                    <ul className="space-y-4">
-                                        {categories.map((cat) => (
-                                            <li key={cat.id}>
+                                <div className="w-60 space-y-8">
+                                    {/* Categories */}
+                                    <div>
+                                        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-4">Categorías</h3>
+                                        <div className="space-y-2">
+                                            {categories.map((cat) => (
                                                 <button
+                                                    key={cat.id}
                                                     onClick={() => setSelectedCategory(cat.id)}
-                                                    className={`text-sm tracking-wide transition-all hover:translate-x-1 ${selectedCategory === cat.id
-                                                        ? "font-black text-black"
-                                                        : "font-medium text-gray-500 hover:text-black"
+                                                    className={`block text-sm font-medium tracking-wide transition-all ${selectedCategory === cat.id
+                                                        ? "text-white font-bold"
+                                                        : "text-zinc-500 hover:text-zinc-300"
                                                         }`}
                                                 >
+                                                    {selectedCategory === cat.id && (
+                                                        <span className="inline-block w-2 h-2 bg-[var(--color-neon)] rounded-full mr-2" />
+                                                    )}
                                                     {cat.label}
                                                 </button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
 
-                                <div>
-                                    <h3 className="font-bold uppercase tracking-widest text-xs mb-6 text-gray-400">{t.shop.priceRange}</h3>
-                                    <div className="space-y-4">
-                                        {["$0 - $50", "$50 - $100", "$100 - $150", "$150+"].map((price, i) => (
-                                            <label key={i} className="flex items-center space-x-3 cursor-pointer group">
-                                                <div className="w-4 h-4 border border-gray-200 flex items-center justify-center group-hover:border-black transition-colors">
-                                                    {/* Mock checkbox state */}
-                                                </div>
-                                                <span className="text-sm font-medium text-gray-500 group-hover:text-black transition-colors">{price}</span>
-                                            </label>
-                                        ))}
+                                    {/* Brands */}
+                                    <div>
+                                        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 mb-4">Marcas</h3>
+                                        <div className="space-y-2">
+                                            {brands.map((b) => (
+                                                <label key={b} className="flex items-center gap-3 cursor-pointer group">
+                                                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${selectedBrands.includes(b)
+                                                        ? "bg-[var(--color-neon)] border-[var(--color-neon)]"
+                                                        : "border-zinc-700 group-hover:border-zinc-500"
+                                                        }`}>
+                                                        {selectedBrands.includes(b) && (
+                                                            <svg className="w-2.5 h-2.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        )}
+                                                    </div>
+                                                    <span
+                                                        className={`text-sm transition-colors ${selectedBrands.includes(b) ? "text-white font-bold" : "text-zinc-500 group-hover:text-zinc-300"}`}
+                                                        onClick={() => toggleBrand(b)}
+                                                    >
+                                                        {b}
+                                                    </span>
+                                                </label>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </motion.aside>
@@ -134,16 +178,16 @@ export default function ShopPage() {
                     </AnimatePresence>
 
                     {/* Product Grid */}
-                    <div className="flex-1">
-                        {/* Mobile Categories Scroll */}
-                        <div className="lg:hidden flex overflow-x-auto pb-4 mb-8 gap-4 scrollbar-hide">
+                    <div className="flex-1 min-w-0">
+                        {/* Mobile Categories */}
+                        <div className="md:hidden flex overflow-x-auto pb-4 mb-6 gap-2 scrollbar-hide">
                             {categories.map((cat) => (
                                 <button
                                     key={cat.id}
                                     onClick={() => setSelectedCategory(cat.id)}
-                                    className={`whitespace-nowrap px-6 py-3 text-xs font-bold uppercase tracking-widest border transition-all ${selectedCategory === cat.id
-                                        ? "bg-black text-white border-black"
-                                        : "bg-white text-gray-500 border-gray-200"
+                                    className={`whitespace-nowrap px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-full border transition-all ${selectedCategory === cat.id
+                                        ? "bg-[var(--color-neon)] text-black border-[var(--color-neon)]"
+                                        : "bg-transparent text-zinc-400 border-white/10 hover:border-white/30"
                                         }`}
                                 >
                                     {cat.label}
@@ -151,23 +195,11 @@ export default function ShopPage() {
                             ))}
                         </div>
 
-                        <motion.div
-                            layout
-                            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16"
-                        >
+                        <motion.div layout className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                             <AnimatePresence>
                                 {filteredProducts.length > 0 ? (
-                                    filteredProducts.map((product) => (
-                                        <motion.div
-                                            layout
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            transition={{ duration: 0.5 }}
-                                            key={product.id}
-                                        >
-                                            <ProductCard product={product} />
-                                        </motion.div>
+                                    filteredProducts.map((product, i) => (
+                                        <ProductCard key={product.id} product={product} index={i} />
                                     ))
                                 ) : (
                                     <motion.div
@@ -175,7 +207,7 @@ export default function ShopPage() {
                                         animate={{ opacity: 1 }}
                                         className="col-span-full text-center py-32"
                                     >
-                                        <p className="text-lg text-gray-400 font-light uppercase tracking-widest">{t.shop.noResults}</p>
+                                        <p className="text-zinc-500 text-sm uppercase tracking-widest">No se encontraron productos</p>
                                     </motion.div>
                                 )}
                             </AnimatePresence>

@@ -1,110 +1,176 @@
-
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Lock, Mail, Loader2, ArrowLeft } from "lucide-react";
-import Button from "@/components/ui/Button";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Lock, Mail, Loader2, ArrowLeft, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export default function AdminLoginPage() {
+function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const router = useRouter();
+    const supabase = createSupabaseBrowserClient();
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        if (searchParams.get("error") === "unauthorized") {
+            setError("No tienes permisos de administrador.");
+        }
+    }, [searchParams]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setError("");
 
-        // Simulate login for now
-        if (email === "admin@example.com" && password === "admin") {
-            document.cookie = "admin-session=true; path=/";
-            router.push("/admin");
-        } else {
-            // Real Supabase Login
-            // const { error } = await supabase.auth.signInWithPassword({ email, password });
-            // if (error) alert(error.message);
-            // else router.push("/admin");
+        try {
+            const { data, error: authError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
 
-            // Ensure we handle the "no credentials" case gracefully
-            alert("Invalid credentials (Demo: admin@example.com / admin)");
+            if (authError) {
+                setError(
+                    authError.message === "Invalid login credentials"
+                        ? "Credenciales inválidas. Verifica tu email y contraseña."
+                        : authError.message
+                );
+                setLoading(false);
+                return;
+            }
+
+            if (data.user) {
+                // Wait for session to fully propagate
+                await new Promise((resolve) => setTimeout(resolve, 500));
+
+                const { data: profile, error: profileError } = await (supabase
+                    .from("profiles") as any)
+                    .select("role")
+                    .eq("id", data.user.id)
+                    .single();
+
+                console.log("Profile query result:", { profile, profileError });
+
+                if (profileError) {
+                    console.error("Profile query error:", profileError);
+                    // If RLS blocks the query, try getting user metadata as fallback
+                    setError(`Error al verificar permisos: ${profileError.message}`);
+                    setLoading(false);
+                    return;
+                }
+
+                if (!profile || profile.role !== "admin") {
+                    await supabase.auth.signOut();
+                    setError("No tienes permisos de administrador.");
+                    setLoading(false);
+                    return;
+                }
+
+                router.push("/admin");
+                router.refresh();
+            }
+        } catch {
+            setError("Error de conexión. Intenta de nuevo.");
         }
 
         setLoading(false);
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black px-4">
-            <div className="w-full max-w-md space-y-8">
-                <div className="text-center">
-                    <Link href="/" className="inline-block mb-6 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        <ArrowLeft className="mx-auto h-6 w-6 mb-2" />
-                        <span className="text-xs">Back to Store</span>
-                    </Link>
-                    <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        Admin Access
-                    </h2>
-                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                        Sign in to manage your inventory
+        <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4">
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
+
+            <div className="relative w-full max-w-md space-y-8">
+                <Link
+                    href="/"
+                    className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-white transition-colors uppercase tracking-widest"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    Volver a la Tienda
+                </Link>
+
+                <div>
+                    <h1 className="text-3xl font-display font-black tracking-tight text-white">
+                        SNEAKER<span className="text-[var(--color-neon)]">CMS</span>
+                    </h1>
+                    <p className="mt-2 text-sm text-zinc-500">
+                        Panel de administración — Ingresa tus credenciales
                     </p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-900 py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-200 dark:border-gray-800">
-                    <form className="space-y-6" onSubmit={handleLogin}>
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Email address
-                            </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                </div>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    className="block w-full pl-10 sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white py-2"
-                                    placeholder="admin@example.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                        </div>
+                {error && (
+                    <div className="flex items-center gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                        {error}
+                    </div>
+                )}
 
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Password
-                            </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                </div>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="current-password"
-                                    required
-                                    className="block w-full pl-10 sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white py-2"
-                                    placeholder="admin"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                            </div>
+                <form onSubmit={handleLogin} className="space-y-5">
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Email</label>
+                        <div className="relative">
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                            <input
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full pl-12 pr-4 py-3.5 bg-zinc-900 border border-zinc-800 rounded-lg text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-[var(--color-neon)] focus:ring-1 focus:ring-[var(--color-neon)]/30 transition-all"
+                                placeholder="admin@sneakhub.cl"
+                            />
                         </div>
+                    </div>
 
-                        <div>
-                            <Button type="submit" className="w-full flex justify-center" disabled={loading}>
-                                {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Sign in"}
-                            </Button>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">Contraseña</label>
+                        <div className="relative">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                            <input
+                                type="password"
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full pl-12 pr-4 py-3.5 bg-zinc-900 border border-zinc-800 rounded-lg text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-[var(--color-neon)] focus:ring-1 focus:ring-[var(--color-neon)]/30 transition-all"
+                                placeholder="••••••••"
+                            />
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-4 bg-[var(--color-neon)] text-black font-bold text-sm uppercase tracking-widest rounded-lg hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Verificando...
+                            </>
+                        ) : (
+                            "Ingresar al Panel"
+                        )}
+                    </button>
+                </form>
+
+                <p className="text-center text-[10px] text-zinc-700 uppercase tracking-widest">
+                    Acceso restringido — Solo administradores
+                </p>
             </div>
         </div>
+    );
+}
+
+export default function AdminLoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+                <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
+            </div>
+        }>
+            <LoginForm />
+        </Suspense>
     );
 }

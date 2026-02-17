@@ -3,6 +3,7 @@
 
 import { Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { formatCLP } from "@/lib/utils";
 
 interface Product {
     id: string;
@@ -19,10 +20,7 @@ interface InventoryTableProps {
     onDelete: (id: string) => void;
 }
 
-// Helper for formatting currency
-const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(price);
-};
+
 
 export default function InventoryTable({ products, onEdit, onDelete }: InventoryTableProps) {
     return (
@@ -55,7 +53,7 @@ export default function InventoryTable({ products, onEdit, onDelete }: Inventory
                                     {product.stock} u.
                                 </span>
                             </td>
-                            <td className="px-6 py-4 font-medium text-gray-900">{formatPrice(product.price)}</td>
+                            <td className="px-6 py-4 font-medium text-gray-900">{formatCLP(product.price)}</td>
                             <td className="px-6 py-4 text-right">
                                 <div className="flex justify-end gap-3">
                                     <button

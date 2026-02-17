@@ -1,127 +1,189 @@
 "use client";
 
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer
-} from "recharts";
-import {
-    DollarSign,
-    Users,
-    CreditCard,
-    Activity
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { DollarSign, CreditCard, Activity, AlertTriangle, ArrowUpRight } from "lucide-react";
+import StatsCard from "@/components/admin/StatsCard";
+import StatusBadge from "@/components/admin/StatusBadge";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import Link from "next/link";
+import { formatCLP } from "@/lib/utils";
 
-const data = [
-    { name: "Lun", total: 120000 },
-    { name: "Mar", total: 240000 },
-    { name: "Mié", total: 180000 },
-    { name: "Jue", total: 320000 },
-    { name: "Vie", total: 450000 },
-    { name: "Sáb", total: 580000 },
-    { name: "Dom", total: 390000 },
-];
 
-const recentSales = [
-    { name: "Juan Pérez", email: "juan@example.com", amount: "+$129.990", avatar: "JP" },
-    { name: "Sofia Silva", email: "sofia@example.com", amount: "+$89.990", avatar: "SS" },
-    { name: "Carlos Ruiz", email: "carlos@example.com", amount: "+$210.000", avatar: "CR" },
-    { name: "Ana Gomez", email: "ana@example.com", amount: "+$150.000", avatar: "AG" },
-    { name: "Pedro Diaz", email: "pedro@example.com", amount: "+$99.990", avatar: "PD" },
-];
 
-export default function OverviewPage() {
+export default function DashboardPage() {
+    const supabase = createSupabaseBrowserClient();
+    const [stats, setStats] = useState({ revenue: 0, sales: 0, activePedidos: 0, outOfStock: 0 });
+    const [chartData, setChartData] = useState<{ name: string; total: number }[]>([]);
+    const [recentOrders, setRecentOrders] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadDashboard();
+    }, []);
+
+    async function loadDashboard() {
+        try {
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+            // KPI: Revenue + Sales count this month
+            const { data: orders } = await (supabase
+                .from("orders") as any)
+                .select("total_amount, status, created_at")
+                .gte("created_at", startOfMonth)
+                .in("status", ["paid", "processing", "shipped", "delivered"]);
+
+            const revenue = orders?.reduce((sum: any, o: any) => sum + Number(o.total_amount), 0) || 0;
+            const salesCount = orders?.length || 0;
+
+            // KPI: Active orders
+            const { count: activeCount } = await (supabase
+                .from("orders") as any)
+                .select("*", { count: "exact", head: true })
+                .in("status", ["pending", "processing"]);
+
+            // KPI: Out of stock variants
+            const { count: oosCount } = await (supabase
+                .from("product_variants") as any)
+                .select("*", { count: "exact", head: true })
+                .eq("stock_quantity", 0);
+
+            setStats({
+                revenue,
+                sales: salesCount,
+                activePedidos: activeCount || 0,
+                outOfStock: oosCount || 0,
+            });
+
+            // Chart: Last 7 days revenue
+            const days = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+            const last7 = Array.from({ length: 7 }, (_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - (6 - i));
+                return d;
+            });
+
+            const { data: weekOrders } = await (supabase
+                .from("orders") as any)
+                .select("total_amount, created_at")
+                .gte("created_at", last7[0].toISOString())
+                .in("status", ["paid", "processing", "shipped", "delivered"]);
+
+            const chart = last7.map((d: any) => {
+                const dayOrders = weekOrders?.filter((o: any) => {
+                    const od = new Date(o.created_at);
+                    return od.toDateString() === d.toDateString();
+                }) || [];
+                return { name: days[d.getDay()], total: dayOrders.reduce((s: any, o: any) => s + Number(o.total_amount), 0) };
+            });
+            setChartData(chart);
+
+            // Recent orders
+            const { data: recent } = await (supabase
+                .from("orders") as any)
+                .select("id, total_amount, status, created_at, user_id")
+                .order("created_at", { ascending: false })
+                .limit(5);
+
+            if (recent) {
+                const withProfiles = await Promise.all(
+                    recent.map(async (order: any) => {
+                        if (order.user_id) {
+                            const { data: profile } = await (supabase
+                                .from("profiles") as any)
+                                .select("full_name")
+                                .eq("id", order.user_id)
+                                .single();
+                            return { ...order, customerName: profile?.full_name || "Cliente" };
+                        }
+                        return { ...order, customerName: "Invitado" };
+                    })
+                );
+                setRecentOrders(withProfiles);
+            }
+        } catch (e) {
+            console.error("Dashboard load error:", e);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    if (loading) {
+        return (
+            <div className="space-y-8">
+                <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="h-32 rounded-xl border border-zinc-800 bg-zinc-950 animate-pulse" />
+                    ))}
+                </div>
+                <div className="h-[400px] rounded-xl border border-zinc-800 bg-zinc-950 animate-pulse" />
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-8">
-            {/* Title */}
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
-            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
 
             {/* KPI Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card title="Ingresos Totales" value="$2.450.900" icon={DollarSign} subtext="+20.1% desde el mes pasado" />
-                <Card title="Ventas" value="+27" icon={CreditCard} subtext="+15% desde el mes pasado" />
-                <Card title="Pedidos Activos" value="12" icon={Activity} subtext="+4 nuevos en la última hora" />
-                <Card title="Productos sin Stock" value="3" icon={Activity} subtext="Requiere atención inmediata" isWarning />
+                <StatsCard title="Ingresos del Mes" value={formatCLP(stats.revenue)} icon={DollarSign} subtext="Total del mes actual" />
+                <StatsCard title="Ventas" value={`+${stats.sales}`} icon={CreditCard} subtext="Pedidos completados este mes" />
+                <StatsCard title="Pedidos Activos" value={String(stats.activePedidos)} icon={Activity} subtext="Pendientes y en proceso" />
+                <StatsCard title="Sin Stock" value={String(stats.outOfStock)} icon={AlertTriangle} subtext="Variantes agotadas" isWarning={stats.outOfStock > 0} />
             </div>
 
-            {/* Charts & Recent Sales */}
+            {/* Charts + Recent Orders */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-
-                {/* Main Chart */}
+                {/* Chart */}
                 <div className="col-span-4 rounded-xl border border-zinc-800 bg-zinc-950 p-6">
-                    <h3 className="font-semibold text-lg mb-4 text-white">Resumen de Ingresos</h3>
+                    <h3 className="font-semibold text-lg mb-4 text-white">Ingresos — Últimos 7 Días</h3>
                     <div className="h-[350px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={data}>
-                                <XAxis
-                                    dataKey="name"
-                                    stroke="#52525b"
-                                    fontSize={12}
-                                    tickLine={false}
-                                    axisLine={false}
-                                />
-                                <YAxis
-                                    stroke="#52525b"
-                                    fontSize={12}
-                                    tickLine={false}
-                                    axisLine={false}
-                                    tickFormatter={(value) => `$${value}`}
-                                />
+                            <BarChart data={chartData}>
+                                <XAxis dataKey="name" stroke="#52525b" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis stroke="#52525b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a" }}
+                                    contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: 8 }}
                                     itemStyle={{ color: "#fff" }}
-                                    cursor={{ fill: 'transparent' }}
+                                    formatter={(value: number | undefined) => [formatCLP(value ?? 0), "Total"]}
+                                    cursor={{ fill: "transparent" }}
                                 />
-                                <Bar
-                                    dataKey="total"
-                                    fill="var(--color-neon)"
-                                    radius={[4, 4, 0, 0]}
-                                />
+                                <Bar dataKey="total" fill="var(--color-neon)" radius={[6, 6, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
-                {/* Recent Sales */}
+                {/* Recent Orders */}
                 <div className="col-span-3 rounded-xl border border-zinc-800 bg-zinc-950 p-6">
-                    <h3 className="font-semibold text-lg mb-4 text-white">Ventas Recientes</h3>
-                    <div className="space-y-6">
-                        {recentSales.map((sale, i) => (
-                            <div key={i} className="flex items-center">
-                                <div className="h-9 w-9 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-white mr-4">
-                                    {sale.avatar}
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium leading-none text-white">{sale.name}</p>
-                                    <p className="text-xs text-zinc-400">{sale.email}</p>
-                                </div>
-                                <div className="ml-auto font-medium text-white">{sale.amount}</div>
-                            </div>
-                        ))}
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-semibold text-lg text-white">Pedidos Recientes</h3>
+                        <Link href="/admin/orders" className="text-xs text-[var(--color-neon)] hover:underline flex items-center gap-1">
+                            Ver todos <ArrowUpRight className="w-3 h-3" />
+                        </Link>
+                    </div>
+                    <div className="space-y-4">
+                        {recentOrders.length === 0 ? (
+                            <p className="text-zinc-500 text-sm text-center py-8">No hay pedidos aún</p>
+                        ) : (
+                            recentOrders.map((order: any) => (
+                                <Link key={order.id} href={`/admin/orders/${order.id}`} className="flex items-center gap-4 p-3 rounded-lg hover:bg-zinc-900 transition-colors">
+                                    <div className="h-9 w-9 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-white">
+                                        {order.customerName.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-white truncate">{order.customerName}</p>
+                                        <StatusBadge status={order.status} />
+                                    </div>
+                                    <span className="font-bold text-white text-sm">{formatCLP(Number(order.total_amount))}</span>
+                                </Link>
+                            ))
+                        )}
                     </div>
                 </div>
-
-            </div>
-        </div>
-    );
-}
-
-function Card({ title, value, icon: Icon, subtext, isWarning }: any) {
-    return (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-6 text-card-foreground shadow-sm">
-            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <h3 className="tracking-tight text-sm font-medium text-zinc-400">{title}</h3>
-                <Icon className={`h-4 w-4 ${isWarning ? 'text-red-500' : 'text-zinc-400'}`} />
-            </div>
-            <div className="pt-2">
-                <div className="text-2xl font-bold text-white">{value}</div>
-                <p className="text-xs text-zinc-500 mt-1">{subtext}</p>
             </div>
         </div>
     );

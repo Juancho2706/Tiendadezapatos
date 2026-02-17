@@ -1,12 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #1e293b;
-  --foreground: #ffffff;
+  /* Midnight Concrete Design System */
+  --color-bg: #0a0a0a;
+  --color-surface: #141414;
+  --color-border: rgba(255, 255, 255, 0.05);
   --color-neon: #06b6d4;
-  --color-concrete: #94a3b8;
-  --color-base: #1e293b;
-  --color-dark-slate: #0f172a;
+  --color-sale: #f97316;
+  --color-text: #ffffff;
+  --color-text-secondary: #a1a1aa;
+  --color-base: #0a0a0a;
+  --color-dark-slate: #080808;
+  --color-concrete: #a1a1aa;
 
   /* Font families mapped to variables */
   --font-display: var(--font-archivo-black);
@@ -25,8 +30,8 @@
 
 /* Enforce dark minimalist theme */
 body {
-  background: var(--color-base);
-  color: var(--foreground);
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-body), sans-serif;
 }
 
@@ -41,37 +46,52 @@ h6 {
 
 /* Custom Utilities */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+
 
   .glass-nav {
-    @apply backdrop-blur-md bg-black/10 border-b border-white/5;
+    @apply backdrop-blur-xl bg-black/60 border-b border-white/5;
   }
 
-  .text-neon {
-    color: var(--color-neon);
-  }
 
-  .bg-neon {
-    background-color: var(--color-neon);
-  }
-
-  .border-neon {
-    border-color: var(--color-neon);
-  }
 }
 
+/* Marquee Animation */
 @keyframes marquee {
   0% {
     transform: translateX(0%);
   }
 
   100% {
-    transform: translateX(-100%);
+    transform: translateX(-50%);
   }
 }
 
 .animate-marquee {
-  animation: marquee 25s linear infinite;
+  animation: marquee 20s linear infinite;
+}
+
+
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(6, 182, 212, 0.3);
+  color: white;
 }

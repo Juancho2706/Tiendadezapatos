@@ -1,7 +1,4 @@
-
 "use client";
-
-import { cn } from "@/lib/utils"; // Assuming you have a utils file or similar, if not I'll just use standard template literals.
 
 interface SizeSelectorProps {
     sizes: number[];
@@ -9,16 +6,18 @@ interface SizeSelectorProps {
     onSelect: (size: number) => void;
 }
 
-// Mock inventory check - in a real app this would come from the DB
-// For valid demo purposes, let's say sizes 40 and 44 are out of stock
 const OUT_OF_STOCK = [40, 44];
 
 export default function SizeSelector({ sizes, selectedSize, onSelect }: SizeSelectorProps) {
     return (
         <div className="w-full">
             <div className="flex justify-between items-center mb-4">
-                <span className="text-sm font-bold uppercase tracking-widest">Seleccionar Talla</span>
-                <button className="text-xs text-gray-500 underline hover:text-black uppercase">Guía de Tallas</button>
+                <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                    Seleccionar Talla {selectedSize && <span className="text-white ml-1">— EU {selectedSize}</span>}
+                </span>
+                <button className="text-[10px] text-zinc-500 underline hover:text-[var(--color-neon)] uppercase tracking-widest transition-colors">
+                    Guía de Tallas
+                </button>
             </div>
 
             <div className="grid grid-cols-4 gap-2">
@@ -32,20 +31,19 @@ export default function SizeSelector({ sizes, selectedSize, onSelect }: SizeSele
                             onClick={() => !isOutOfStock && onSelect(size)}
                             disabled={isOutOfStock}
                             className={`
-                relative h-12 flex items-center justify-center text-sm font-bold border transition-all
-                ${isOutOfStock
-                                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                relative h-12 flex items-center justify-center text-sm font-bold rounded-lg border transition-all
+                                ${isOutOfStock
+                                    ? "bg-white/[0.02] text-zinc-700 border-white/5 cursor-not-allowed"
                                     : isSelected
-                                        ? "bg-black text-white border-black"
-                                        : "bg-white text-black border-gray-200 hover:border-black"
+                                        ? "bg-[var(--color-neon)] text-black border-[var(--color-neon)]"
+                                        : "bg-[#141414] text-white border-white/10 hover:border-[var(--color-neon)]/50"
                                 }
-              `}
+                            `}
                         >
                             {size}
-                            {/* Diagonal Line for Out of Stock */}
                             {isOutOfStock && (
                                 <span className="absolute inset-0 w-full h-full">
-                                    <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                    <svg className="w-full h-full text-zinc-700" viewBox="0 0 100 100" preserveAspectRatio="none">
                                         <line x1="0" y1="100" x2="100" y2="0" stroke="currentColor" strokeWidth="1" />
                                     </svg>
                                 </span>

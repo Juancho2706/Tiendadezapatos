@@ -1,22 +1,16 @@
-
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Archivo_Black, Inter_Tight } from "next/font/google";
+import { Geist, Archivo_Black, Inter_Tight } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/ui/Navbar";
-import Footer from "@/components/ui/Footer";
 import { CartProvider } from "@/context/CartContext";
-import CartDrawer from "@/components/ui/CartDrawer";
-import { LanguageProvider } from "@/context/LanguageContext";
+
+import LayoutShell from "@/components/ui/LayoutShell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+
 
 const archivoBlack = Archivo_Black({
   weight: "400",
@@ -30,8 +24,33 @@ const interTight = Inter_Tight({
 });
 
 export const metadata: Metadata = {
-  title: "SneakHub - Premium Footwear Store",
-  description: "The best place to buy premium sneakers.",
+  title: {
+    default: "SNEAKHUB | Zapatillas Urbanas Exclusivas",
+    template: "%s | SNEAKHUB",
+  },
+  description: "Descubre las zapatillas más exclusivas de Chile. Nike, Jordan, Adidas y más. Envíos a todo el país. Compra segura y garantizada.",
+  keywords: ["zapatillas", "sneakers", "chile", "nike", "jordan", "adidas", "yeezy", "moda urbana", "streetwear", "tienda de zapatillas"],
+  authors: [{ name: "SNEAKHUB" }],
+  creator: "SNEAKHUB",
+  openGraph: {
+    type: "website",
+    locale: "es_CL",
+    url: "https://sneakhub.cl",
+    title: "SNEAKHUB | Zapatillas Urbanas Exclusivas",
+    description: "Las mejores marcas y modelos exclusivos en un solo lugar.",
+    siteName: "SNEAKHUB",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SNEAKHUB | Zapatillas Urbanas Exclusivas",
+    description: "Las mejores marcas y modelos exclusivos en un solo lugar.",
+    creator: "@sneakhub_cl",
+  },
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -40,21 +59,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${archivoBlack.variable} ${interTight.variable} antialiased bg-[var(--color-base)] text-white min-h-screen flex flex-col font-sans`}
+        className={`${geistSans.variable} ${archivoBlack.variable} ${interTight.variable} antialiased bg-[#0a0a0a] text-white min-h-screen flex flex-col font-sans`}
       >
-        <LanguageProvider>
-          <CartProvider>
-            <Navbar />
-            <CartDrawer />
-            <main className="flex-grow pt-16">
-              {children}
-            </main>
-            <Footer />
-          </CartProvider>
-        </LanguageProvider>
+
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "SNEAKHUB",
+              url: "https://sneakhub.cl",
+              logo: "https://sneakhub.cl/favicon.svg",
+              sameAs: ["https://instagram.com/sneakhub_cl"],
+            }),
+          }}
+        />
+        <CartProvider>
+          <LayoutShell>{children}</LayoutShell>
+        </CartProvider>
+
       </body>
     </html>
   );
 }
+
