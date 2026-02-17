@@ -5,24 +5,26 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import ProductCard from "./ProductCard";
+import type { Product } from "@/services/products";
 
-const allProducts = [
-    { id: 1, name: "Air Max Pulse", brand: "Nike", price: 149990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop" },
-    { id: 2, name: "Zoom Freak 5", brand: "Nike", price: 129990, salePrice: 99990, category: "Basketball", image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop" },
-    { id: 3, name: "Forum Low", brand: "Adidas", price: 109990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1525966222134-fcfa99ca9776?q=80&w=800&auto=format&fit=crop" },
-    { id: 4, name: "Air Force 1 '07", brand: "Nike", price: 119990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?q=80&w=800&auto=format&fit=crop" },
-    { id: 5, name: "Dunk Low Retro", brand: "Nike", price: 134990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800&auto=format&fit=crop" },
-    { id: 6, name: "Ultraboost 23", brand: "Adidas", price: 179990, salePrice: 139990, category: "Running", image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?q=80&w=800&auto=format&fit=crop" },
-    { id: 7, name: "550 White Green", brand: "New Balance", price: 124990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1539185441755-769473a23570?q=80&w=800&auto=format&fit=crop" },
-    { id: 8, name: "Suede Classic", brand: "Puma", price: 89990, category: "Lifestyle", image: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=800&auto=format&fit=crop" },
-];
+interface BestSellersProps {
+    products: Product[];
+}
 
-const ITEMS_PER_PAGE = 4;
+export default function BestSellers({ products }: BestSellersProps) {
+    const ITEMS_PER_PAGE = 4;
 
-export default function BestSellers() {
+    // adapter for ProductCard
+    const displayProducts = products.map((p) => ({
+        ...p,
+        image: p.images[0] || "/placeholder.jpg",
+        salePrice: p.salePrice ?? undefined,
+        category: p.category || "General",
+    }));
+
     const [currentPage, setCurrentPage] = useState(0);
-    const totalPages = Math.ceil(allProducts.length / ITEMS_PER_PAGE);
-    const currentProducts = allProducts.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(displayProducts.length / ITEMS_PER_PAGE);
+    const currentProducts = displayProducts.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE);
 
     const nextPage = () => setCurrentPage((p) => (p + 1) % totalPages);
     const prevPage = () => setCurrentPage((p) => (p - 1 + totalPages) % totalPages);

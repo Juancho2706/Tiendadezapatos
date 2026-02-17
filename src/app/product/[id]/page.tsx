@@ -1,6 +1,7 @@
 import { Metadata, ResolvingMetadata } from "next";
 import ProductView from "@/components/product/ProductView";
-import { products } from "@/lib/mockData";
+import { getProductById } from "@/services/products";
+import { notFound } from "next/navigation";
 
 type Props = {
     params: Promise<{ id: string }>;
@@ -12,14 +13,20 @@ export async function generateMetadata(
     parent: ResolvingMetadata
 ): Promise<Metadata> {
     const id = (await params).id;
-    const product = products.find((p) => p.id === id) || products[0];
+    const product = await getProductById(id);
+
+    if (!product) {
+        return {
+            title: "Producto no encontrado",
+        };
+    }
 
     return {
         title: product.name,
         description: product.description,
         openGraph: {
             title: product.name,
-            description: product.description,
+            description: product.description || "",
             images: [
                 {
                     url: product.images[0] || "/Hero New.png",
@@ -34,7 +41,11 @@ export async function generateMetadata(
 
 export default async function ProductPage({ params }: Props) {
     const id = (await params).id;
-    const product = products.find((p) => p.id === id) || products[0];
+    const product = await getProductById(id);
+
+    if (!product) {
+        notFound();
+    }
 
     const jsonLd = {
         "@context": "https://schema.org",
