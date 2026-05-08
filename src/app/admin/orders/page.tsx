@@ -2,17 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { Search, Eye } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getOrders } from "@/lib/mock/store";
 import Link from "next/link";
 import StatusBadge from "@/components/admin/StatusBadge";
 import { formatCLP } from "@/lib/utils";
-
 
 const statuses = ["all", "pending", "paid", "processing", "shipped", "delivered", "cancelled"];
 const statusLabels: Record<string, string> = { all: "Todos", pending: "Pendiente", paid: "Pagado", processing: "En Proceso", shipped: "Enviado", delivered: "Entregado", cancelled: "Cancelado" };
 
 export default function OrdersPage() {
-    const supabase = createSupabaseBrowserClient();
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("all");
@@ -21,32 +19,22 @@ export default function OrdersPage() {
     useEffect(() => { loadOrders(); }, []);
 
     async function loadOrders() {
-        const { data } = await (supabase
-            .from("orders") as any)
-            .select("*, order_items(quantity, unit_price)")
-            .order("created_at", { ascending: false });
+        const data = await getOrders();
 
-        if (data) {
-            const withProfiles = await Promise.all(
-                data.map(async (order: any) => {
-                    let customerName = "Invitado";
-                    let customerEmail = "";
+        const withProfiles = data.map((order: any) => {
+            let customerName = "Invitado";
+            let customerEmail = "";
 
-                    if (order.user_id) {
-                        const { data: profile } = await (supabase.from("profiles") as any).select("full_name").eq("id", order.user_id).single();
-                        customerName = profile?.full_name || "Cliente";
-                    } else if (order.shipping_details) {
-                        // Handle guest checkout names
-                        const { firstName, lastName, full_name } = order.shipping_details;
-                        if (full_name) customerName = full_name;
-                        else if (firstName && lastName) customerName = `${firstName} ${lastName}`;
-                    }
+            if (order.shipping_details) {
+                const { firstName, lastName, full_name } = order.shipping_details;
+                if (full_name) customerName = full_name;
+                else if (firstName && lastName) customerName = `${firstName} ${lastName}`;
+                else if (firstName) customerName = firstName;
+            }
 
-                    return { ...order, customerName, customerEmail };
-                })
-            );
-            setOrders(withProfiles);
-        }
+            return { ...order, customerName, customerEmail };
+        });
+        setOrders(withProfiles);
         setLoading(false);
     }
 

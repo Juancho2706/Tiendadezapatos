@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Search, Eye } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getProfiles, getOrders } from "@/lib/mock/store";
 import Link from "next/link";
 
 const formatCLP = (n: number) => new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(n);
 
 export default function CustomersPage() {
-    const supabase = createSupabaseBrowserClient();
     const [customers, setCustomers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -16,19 +15,16 @@ export default function CustomersPage() {
     useEffect(() => { loadCustomers(); }, []);
 
     async function loadCustomers() {
-        const { data: profiles } = await (supabase.from("profiles") as any).select("*").eq("role", "customer").order("created_at", { ascending: false });
+        const profiles = await getProfiles();
+        const orders = await getOrders();
 
-        if (profiles) {
-            const withStats = await Promise.all(
-                profiles.map(async (p: any) => {
-                    const { data: orders } = await (supabase.from("orders") as any).select("total_amount").eq("user_id", p.id);
-                    const totalOrders = orders?.length || 0;
-                    const totalSpent = orders?.reduce((s: any, o: any) => s + Number(o.total_amount), 0) || 0;
-                    return { ...p, totalOrders, totalSpent };
-                })
-            );
-            setCustomers(withStats);
-        }
+        const withStats = profiles.map((p: any) => {
+            const customerOrders = orders.filter((o: any) => o.user_id === p.id);
+            const totalOrders = customerOrders.length;
+            const totalSpent = customerOrders.reduce((s: number, o: any) => s + Number(o.total_amount), 0);
+            return { ...p, totalOrders, totalSpent };
+        });
+        setCustomers(withStats);
         setLoading(false);
     }
 

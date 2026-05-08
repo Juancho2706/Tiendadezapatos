@@ -2,16 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Loader2, User, MapPin, Phone } from "lucide-react";
+import { ArrowLeft, Loader2, Phone, MapPin } from "lucide-react";
 import Link from "next/link";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getProfileById, getOrders } from "@/lib/mock/store";
 import StatusBadge from "@/components/admin/StatusBadge";
 import { formatCLP } from "@/lib/utils";
 
-
-
 export default function CustomerDetailPage() {
-    const supabase = createSupabaseBrowserClient();
     const params = useParams();
     const [customer, setCustomer] = useState<any>(null);
     const [orders, setOrders] = useState<any[]>([]);
@@ -20,15 +17,12 @@ export default function CustomerDetailPage() {
     useEffect(() => { loadCustomer(); }, []);
 
     async function loadCustomer() {
-        const { data: profile } = await (supabase.from("profiles") as any).select("*").eq("id", params.id).single();
+        const profile = await getProfileById(params.id as string);
         setCustomer(profile);
 
-        const { data: customerOrders } = await (supabase
-            .from("orders") as any)
-            .select("id, total_amount, status, created_at")
-            .eq("user_id", params.id)
-            .order("created_at", { ascending: false });
-        setOrders(customerOrders || []);
+        const allOrders = await getOrders();
+        const customerOrders = allOrders.filter((o: any) => o.user_id === params.id);
+        setOrders(customerOrders);
         setLoading(false);
     }
 

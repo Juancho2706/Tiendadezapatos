@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { Save, Loader2, Store, Truck, Shield } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getSession } from "@/lib/mock/auth";
 
 type SettingsTab = "store" | "shipping" | "account";
 
 export default function SettingsPage() {
-    const supabase = createSupabaseBrowserClient();
     const [activeTab, setActiveTab] = useState<SettingsTab>("store");
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -35,35 +34,15 @@ export default function SettingsPage() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [userEmail, setUserEmail] = useState("");
 
-    useEffect(() => { loadSettings(); }, []);
-
-    async function loadSettings() {
-        // Load store config from content_blocks
-        const { data } = await (supabase.from("content_blocks") as any).select("*").eq("section_name", "store_config").single();
-        if (data) {
-            try {
-                const config = typeof data.title === "string" ? JSON.parse(data.title) : {};
-                setStoreConfig({ ...storeConfig, ...config });
-            } catch { /* ignore parse errors */ }
-            try {
-                const shipping = typeof data.subtitle === "string" ? JSON.parse(data.subtitle) : {};
-                setShippingConfig({ ...shippingConfig, ...shipping });
-            } catch { /* ignore */ }
-        }
-
-        // Load user email
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) setUserEmail(user.email || "");
-    }
+    useEffect(() => {
+        const session = getSession();
+        if (session.user) setUserEmail(session.user.email || "");
+    }, []);
 
     async function saveStoreSettings() {
         setSaving(true);
-        await (supabase.from("content_blocks") as any).upsert({
-            section_name: "store_config",
-            title: JSON.stringify(storeConfig),
-            subtitle: JSON.stringify(shippingConfig),
-            is_active: true,
-        }, { onConflict: "section_name" });
+        // Mock save - in a real app we would persist this to localStorage or mock store
+        await new Promise((r) => setTimeout(r, 400));
         setSaving(false);
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
@@ -73,8 +52,8 @@ export default function SettingsPage() {
         if (newPassword !== confirmPassword) { alert("Las contraseñas no coinciden"); return; }
         if (newPassword.length < 6) { alert("La contraseña debe tener al menos 6 caracteres"); return; }
         setSaving(true);
-        const { error } = await supabase.auth.updateUser({ password: newPassword });
-        if (error) { alert("Error: " + error.message); } else { alert("Contraseña actualizada correctamente"); }
+        await new Promise((r) => setTimeout(r, 400));
+        alert("Contraseña actualizada correctamente (mock)");
         setNewPassword("");
         setConfirmPassword("");
         setSaving(false);

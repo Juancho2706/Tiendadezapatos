@@ -4,7 +4,7 @@ import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Mail, Loader2, ArrowLeft, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { signIn } from "@/lib/mock/auth";
 
 function LoginForm() {
     const [email, setEmail] = useState("");
@@ -12,7 +12,6 @@ function LoginForm() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
-    const supabase = createSupabaseBrowserClient();
     const searchParams = useSearchParams();
 
     useEffect(() => {
@@ -27,48 +26,15 @@ function LoginForm() {
         setError("");
 
         try {
-            const { data, error: authError } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
+            const { user, error: authError } = await signIn(email, password);
 
             if (authError) {
-                setError(
-                    authError.message === "Invalid login credentials"
-                        ? "Credenciales inválidas. Verifica tu email y contraseña."
-                        : authError.message
-                );
+                setError(authError);
                 setLoading(false);
                 return;
             }
 
-            if (data.user) {
-                // Wait for session to fully propagate
-                await new Promise((resolve) => setTimeout(resolve, 500));
-
-                const { data: profile, error: profileError } = await (supabase
-                    .from("profiles") as any)
-                    .select("role")
-                    .eq("id", data.user.id)
-                    .single();
-
-                console.log("Profile query result:", { profile, profileError });
-
-                if (profileError) {
-                    console.error("Profile query error:", profileError);
-                    // If RLS blocks the query, try getting user metadata as fallback
-                    setError(`Error al verificar permisos: ${profileError.message}`);
-                    setLoading(false);
-                    return;
-                }
-
-                if (!profile || profile.role !== "admin") {
-                    await supabase.auth.signOut();
-                    setError("No tienes permisos de administrador.");
-                    setLoading(false);
-                    return;
-                }
-
+            if (user) {
                 router.push("/admin");
                 router.refresh();
             }

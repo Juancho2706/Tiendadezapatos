@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export interface CartItem {
     id: string | number;
@@ -32,8 +31,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
-    const supabase = createSupabaseBrowserClient();
-
     // Load from LocalStorage on mount
     useEffect(() => {
         setIsMounted(true);

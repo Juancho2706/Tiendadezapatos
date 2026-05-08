@@ -4,14 +4,13 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, MapPin, Phone, CreditCard, Package } from "lucide-react";
 import Link from "next/link";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getOrderById, getProfileById } from "@/lib/mock/store";
 import StatusBadge from "@/components/admin/StatusBadge";
 
 const formatCLP = (n: number) => new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(n);
 const statusFlow = ["pending", "paid", "processing", "shipped", "delivered"];
 
 export default function OrderDetailPage() {
-    const supabase = createSupabaseBrowserClient();
     const params = useParams();
     const router = useRouter();
     const [order, setOrder] = useState<any>(null);
@@ -23,17 +22,13 @@ export default function OrderDetailPage() {
     useEffect(() => { loadOrder(); }, []);
 
     async function loadOrder() {
-        const { data } = await (supabase
-            .from("orders") as any)
-            .select("*, order_items(*, product_variants(*, products(name, product_images(url, is_main))))")
-            .eq("id", params.id)
-            .single();
+        const data = await getOrderById(params.id as string);
 
         if (data) {
             setOrder(data);
             setItems(data.order_items || []);
             if (data.user_id) {
-                const { data: profile } = await (supabase.from("profiles") as any).select("*").eq("id", data.user_id).single();
+                const profile = await getProfileById(data.user_id);
                 setCustomer(profile);
             }
         }
@@ -42,7 +37,7 @@ export default function OrderDetailPage() {
 
     async function updateStatus(newStatus: string) {
         setUpdating(true);
-        await (supabase.from("orders") as any).update({ status: newStatus }).eq("id", params.id);
+        // In a full mock store we would update the order, but for now we just update local state
         setOrder({ ...order, status: newStatus });
         setUpdating(false);
     }
@@ -93,17 +88,13 @@ export default function OrderDetailPage() {
                     <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2"><Package className="w-4 h-4" /> Productos</h3>
                     <div className="divide-y divide-zinc-800">
                         {items.map((item, i) => {
-                            const variant = item.product_variants;
-                            const product = variant?.products;
-                            const img = product?.product_images?.find((i: any) => i.is_main)?.url || product?.product_images?.[0]?.url;
                             return (
                                 <div key={i} className="flex items-center gap-4 py-4">
                                     <div className="w-14 h-14 rounded-lg bg-zinc-800 overflow-hidden relative flex-shrink-0">
-                                        {img && <img src={img} alt="" className="w-full h-full object-cover" />}
+                                        <img src="/Hero New.png" alt="" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-white font-medium text-sm truncate">{product?.name || "Producto"}</p>
-                                        <p className="text-zinc-500 text-xs">Talla: {variant?.size} {variant?.color && `— ${variant.color}`}</p>
+                                        <p className="text-white font-medium text-sm truncate">{item.product_name || "Producto"}</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-white text-sm font-bold">{formatCLP(Number(item.unit_price) * item.quantity)}</p>

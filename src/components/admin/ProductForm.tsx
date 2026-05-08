@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import Link from "next/link";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getBrands, getProductById, createProduct, updateProduct } from "@/lib/mock/store";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { Plus, X } from "lucide-react";
 
@@ -21,7 +21,6 @@ interface ProductFormProps {
 }
 
 export default function ProductForm({ productId }: ProductFormProps) {
-    const supabase = createSupabaseBrowserClient();
     const router = useRouter();
     const isEdit = !!productId;
 
@@ -54,16 +53,12 @@ export default function ProductForm({ productId }: ProductFormProps) {
     }, []);
 
     async function loadBrands() {
-        const { data } = await (supabase.from("brands") as any).select("id, name").order("name");
+        const data = await getBrands();
         setBrands(data || []);
     }
 
     async function loadProduct() {
-        const { data: product } = await (supabase
-            .from("products") as any)
-            .select("*, product_variants(*), product_images(url, id, is_main, display_order)")
-            .eq("id", productId)
-            .single();
+        const product = await getProductById(productId!);
 
         if (product) {
             setForm({
@@ -72,13 +67,13 @@ export default function ProductForm({ productId }: ProductFormProps) {
                 description: product.description || "",
                 price: String(product.price),
                 sale_price: product.sale_price ? String(product.sale_price) : "",
-                category: product.category,
+                category: product.category || "",
                 brand_id: product.brand_id || "",
                 is_featured: product.is_featured,
                 is_drop: product.is_drop,
             });
             setVariants(
-                product.product_variants?.map((v: any) => ({
+                product.variants?.map((v: any) => ({
                     id: v.id,
                     size: v.size,
                     color: v.color || "",
@@ -87,7 +82,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
                 })) || [{ size: "", color: "", stock_quantity: 0, sku: "" }]
             );
             setImages(
-                product.product_images
+                product.images
                     ?.sort((a: any, b: any) => a.display_order - b.display_order)
                     .map((i: any) => i.url) || []
             );
@@ -106,7 +101,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
     async function handleSave() {
         setSaving(true);
         try {
-            const productData = {
+            const productData: any = {
                 name: form.name,
                 slug: form.slug || generateSlug(form.name),
                 description: form.description || null,
@@ -121,50 +116,44 @@ export default function ProductForm({ productId }: ProductFormProps) {
             let pid = productId;
 
             if (isEdit) {
-                await (supabase.from("products") as any).update(productData).eq("id", productId);
+                await updateProduct(productId!, productData);
             } else {
-                const { data } = await (supabase.from("products") as any).insert(productData).select("id").single();
-                pid = data?.id;
+                const created = await createProduct(productData);
+                pid = created.id;
             }
 
             if (!pid) throw new Error("No product ID");
 
             // Save variants
-            if (isEdit) {
-                await (supabase.from("product_variants") as any).delete().eq("product_id", pid);
-            }
             const variantRows = variants
                 .filter((v) => v.size.trim() !== "")
                 .map((v) => ({
-                    product_id: pid,
                     size: v.size,
                     color: v.color || null,
                     stock_quantity: v.stock_quantity,
                     sku: v.sku || null,
                 }));
-            if (variantRows.length > 0) {
-                await (supabase.from("product_variants") as any).insert(variantRows);
-            }
 
-            // Upload new image files to Supabase Storage
+            await updateProduct(pid, { variants: variantRows });
+
+            // Handle images - for mock data, we just keep existing URLs
+            // In a real app we would upload files. For mock, we'll add placeholder URLs for new files.
             if (newFiles.length > 0) {
-                for (const file of newFiles) {
-                    const fileExt = file.name.split(".").pop();
-                    const fileName = `${pid}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-                    const { data: uploadData } = await supabase.storage
-                        .from("product-images")
-                        .upload(fileName, file);
-
-                    if (uploadData) {
-                        const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(fileName);
-                        await (supabase.from("product_images") as any).insert({
-                            product_id: pid,
-                            url: urlData.publicUrl,
-                            is_main: images.length === 0,
-                            display_order: images.length,
-                        });
-                    }
-                }
+                const newImageUrls = newFiles.map(() => "/placeholder.jpg"); // Mock: no real upload
+                const allImages = [...images, ...newImageUrls];
+                const imageObjects = allImages.map((url, idx) => ({
+                    url,
+                    is_main: idx === 0,
+                    display_order: idx,
+                }));
+                await updateProduct(pid, { images: imageObjects });
+            } else if (images.length > 0) {
+                const imageObjects = images.map((url, idx) => ({
+                    url,
+                    is_main: idx === 0,
+                    display_order: idx,
+                }));
+                await updateProduct(pid, { images: imageObjects });
             }
 
             router.push("/admin/products");

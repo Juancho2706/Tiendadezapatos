@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Search, Trash2, Edit, Eye } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getProducts, deleteProduct } from "@/lib/mock/store";
 import Link from "next/link";
 import Image from "next/image";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
@@ -10,7 +10,6 @@ import ConfirmDialog from "@/components/admin/ConfirmDialog";
 const formatCLP = (n: number) => new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(n);
 
 export default function ProductsPage() {
-    const supabase = createSupabaseBrowserClient();
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -22,10 +21,7 @@ export default function ProductsPage() {
 
     async function loadProducts() {
         setLoading(true);
-        const { data } = await (supabase
-            .from("products") as any)
-            .select("*, brands(name), product_variants(stock_quantity), product_images(url, is_main)")
-            .order("created_at", { ascending: false });
+        const data = await getProducts();
         setProducts(data || []);
         setLoading(false);
     }
@@ -33,7 +29,7 @@ export default function ProductsPage() {
     async function handleDelete() {
         if (!deleteId) return;
         setDeleting(true);
-        await (supabase.from("products") as any).delete().eq("id", deleteId);
+        await deleteProduct(deleteId);
         setProducts((p) => p.filter((x) => x.id !== deleteId));
         setDeleteId(null);
         setDeleting(false);
@@ -45,7 +41,7 @@ export default function ProductsPage() {
         return matchSearch && matchCat;
     });
 
-    const categories = [...new Set(products.map((p: any) => p.category))];
+    const categories = [...new Set(products.map((p: any) => p.category).filter(Boolean))];
 
     return (
         <div className="space-y-6">
@@ -103,8 +99,8 @@ export default function ProductsPage() {
                             <tr><td colSpan={6} className="px-4 py-12 text-center text-zinc-500">No se encontraron productos</td></tr>
                         ) : (
                             filtered.map((p: any) => {
-                                const mainImg = p.product_images?.find((i: any) => i.is_main)?.url || p.product_images?.[0]?.url;
-                                const totalStock = p.product_variants?.reduce((s: number, v: any) => s + v.stock_quantity, 0) || 0;
+                                const mainImg = p.images?.find((i: any) => i.is_main)?.url || p.images?.[0]?.url;
+                                const totalStock = p.variants?.reduce((s: number, v: any) => s + (v.stock_quantity || 0), 0) || 0;
                                 return (
                                     <tr key={p.id} className="hover:bg-zinc-900/30 transition-colors">
                                         <td className="px-4 py-3">
@@ -122,7 +118,7 @@ export default function ProductsPage() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 text-zinc-400 hidden md:table-cell">{p.brands?.name || "—"}</td>
+                                        <td className="px-4 py-3 text-zinc-400 hidden md:table-cell">{p.brand?.name || "—"}</td>
                                         <td className="px-4 py-3 text-zinc-400 hidden lg:table-cell">{p.category}</td>
                                         <td className="px-4 py-3 text-right">
                                             {p.sale_price ? (

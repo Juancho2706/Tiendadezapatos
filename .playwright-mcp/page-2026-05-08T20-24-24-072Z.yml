@@ -1,0 +1,232 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "SNEAKHUB" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - button [ref=e6]:
+          - img [ref=e7]
+        - button [ref=e10]:
+          - img [ref=e11]
+  - main [ref=e12]:
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - heading "Tienda" [level=1] [ref=e16]
+        - paragraph [ref=e17]: 12 productos
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - img [ref=e20]
+          - textbox "Buscar..." [ref=e23]
+        - generic [ref=e24]:
+          - combobox [ref=e25] [cursor=pointer]:
+            - option "Más Recientes" [selected]
+            - 'option "Precio: Bajo a Alto"'
+            - 'option "Precio: Alto a Bajo"'
+          - button "Filtros" [ref=e26]:
+            - img [ref=e27]
+            - text: Filtros
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - link "Jordan 1 Low Travis Scott Olive Sale" [ref=e32] [cursor=pointer]:
+            - /url: /product/p9
+            - img "Jordan 1 Low Travis Scott Olive" [ref=e33]
+            - generic [ref=e34]: Sale
+          - generic [ref=e35]:
+            - paragraph [ref=e36]: Jordan
+            - link "Jordan 1 Low Travis Scott Olive" [ref=e37] [cursor=pointer]:
+              - /url: /product/p9
+              - heading "Jordan 1 Low Travis Scott Olive" [level=3] [ref=e38]
+            - generic [ref=e39]:
+              - generic [ref=e40]: $279.990
+              - generic [ref=e41]: $299.990
+        - generic [ref=e42]:
+          - link "Nike Air Max 1 Patta Waves" [ref=e43] [cursor=pointer]:
+            - /url: /product/p8
+            - img "Nike Air Max 1 Patta Waves" [ref=e44]
+          - generic [ref=e45]:
+            - paragraph [ref=e46]: Nike
+            - link "Nike Air Max 1 Patta Waves" [ref=e47] [cursor=pointer]:
+              - /url: /product/p8
+              - heading "Nike Air Max 1 Patta Waves" [level=3] [ref=e48]
+            - generic [ref=e50]: $179.990
+        - generic [ref=e51]:
+          - link "Jordan 4 Retro Thunder Sale" [ref=e52] [cursor=pointer]:
+            - /url: /product/p5
+            - img "Jordan 4 Retro Thunder" [ref=e53]
+            - generic [ref=e54]: Sale
+          - generic [ref=e55]:
+            - paragraph [ref=e56]: Jordan
+            - link "Jordan 4 Retro Thunder" [ref=e57] [cursor=pointer]:
+              - /url: /product/p5
+              - heading "Jordan 4 Retro Thunder" [level=3] [ref=e58]
+            - generic [ref=e59]:
+              - generic [ref=e60]: $199.990
+              - generic [ref=e61]: $229.990
+        - generic [ref=e62]:
+          - link "Air Jordan 1 High OG Chicago" [ref=e63] [cursor=pointer]:
+            - /url: /product/p1
+            - img "Air Jordan 1 High OG Chicago" [ref=e64]
+          - generic [ref=e65]:
+            - paragraph [ref=e66]: Jordan
+            - link "Air Jordan 1 High OG Chicago" [ref=e67] [cursor=pointer]:
+              - /url: /product/p1
+              - heading "Air Jordan 1 High OG Chicago" [level=3] [ref=e68]
+            - generic [ref=e70]: $189.990
+        - generic [ref=e71]:
+          - link "Nike Dunk Low Retro White Black Sale" [ref=e72] [cursor=pointer]:
+            - /url: /product/p2
+            - img "Nike Dunk Low Retro White Black" [ref=e73]
+            - generic [ref=e74]: Sale
+          - generic [ref=e75]:
+            - paragraph [ref=e76]: Nike
+            - link "Nike Dunk Low Retro White Black" [ref=e77] [cursor=pointer]:
+              - /url: /product/p2
+              - heading "Nike Dunk Low Retro White Black" [level=3] [ref=e78]
+            - generic [ref=e79]:
+              - generic [ref=e80]: $109.990
+              - generic [ref=e81]: $129.990
+        - generic [ref=e82]:
+          - link "Adidas Campus 00s Sale" [ref=e83] [cursor=pointer]:
+            - /url: /product/p7
+            - img "Adidas Campus 00s" [ref=e84]
+            - generic [ref=e85]: Sale
+          - generic [ref=e86]:
+            - paragraph [ref=e87]: Adidas
+            - link "Adidas Campus 00s" [ref=e88] [cursor=pointer]:
+              - /url: /product/p7
+              - heading "Adidas Campus 00s" [level=3] [ref=e89]
+            - generic [ref=e90]:
+              - generic [ref=e91]: $89.990
+              - generic [ref=e92]: $109.990
+        - generic [ref=e93]:
+          - link "Adidas Samba OG" [ref=e94] [cursor=pointer]:
+            - /url: /product/p3
+            - img "Adidas Samba OG" [ref=e95]
+          - generic [ref=e96]:
+            - paragraph [ref=e97]: Adidas
+            - link "Adidas Samba OG" [ref=e98] [cursor=pointer]:
+              - /url: /product/p3
+              - heading "Adidas Samba OG" [level=3] [ref=e99]
+            - generic [ref=e101]: $99.990
+        - generic [ref=e102]:
+          - link "Nike Zoom Vomero 5 Photon Dust Sale" [ref=e103] [cursor=pointer]:
+            - /url: /product/p11
+            - img "Nike Zoom Vomero 5 Photon Dust" [ref=e104]
+            - generic [ref=e105]: Sale
+          - generic [ref=e106]:
+            - paragraph [ref=e107]: Nike
+            - link "Nike Zoom Vomero 5 Photon Dust" [ref=e108] [cursor=pointer]:
+              - /url: /product/p11
+              - heading "Nike Zoom Vomero 5 Photon Dust" [level=3] [ref=e109]
+            - generic [ref=e110]:
+              - generic [ref=e111]: $139.990
+              - generic [ref=e112]: $159.990
+        - generic [ref=e113]:
+          - link "New Balance 9060 Sea Salt" [ref=e114] [cursor=pointer]:
+            - /url: /product/p12
+            - img "New Balance 9060 Sea Salt" [ref=e115]
+          - generic [ref=e116]:
+            - paragraph [ref=e117]: New Balance
+            - link "New Balance 9060 Sea Salt" [ref=e118] [cursor=pointer]:
+              - /url: /product/p12
+              - heading "New Balance 9060 Sea Salt" [level=3] [ref=e119]
+            - generic [ref=e121]: $169.990
+        - generic [ref=e122]:
+          - link "Nike Air Force 1 '07" [ref=e123] [cursor=pointer]:
+            - /url: /product/p4
+            - img "Nike Air Force 1 '07" [ref=e124]
+          - generic [ref=e125]:
+            - paragraph [ref=e126]: Nike
+            - link "Nike Air Force 1 '07" [ref=e127] [cursor=pointer]:
+              - /url: /product/p4
+              - heading "Nike Air Force 1 '07" [level=3] [ref=e128]
+            - generic [ref=e130]: $119.990
+        - generic [ref=e131]:
+          - link "New Balance 550 White Green" [ref=e132] [cursor=pointer]:
+            - /url: /product/p6
+            - img "New Balance 550 White Green" [ref=e133]
+          - generic [ref=e134]:
+            - paragraph [ref=e135]: New Balance
+            - link "New Balance 550 White Green" [ref=e136] [cursor=pointer]:
+              - /url: /product/p6
+              - heading "New Balance 550 White Green" [level=3] [ref=e137]
+            - generic [ref=e139]: $139.990
+        - generic [ref=e140]:
+          - link "Puma Suede Classic XXI" [ref=e141] [cursor=pointer]:
+            - /url: /product/p10
+            - img "Puma Suede Classic XXI" [ref=e142]
+          - generic [ref=e143]:
+            - paragraph [ref=e144]: Puma
+            - link "Puma Suede Classic XXI" [ref=e145] [cursor=pointer]:
+              - /url: /product/p10
+              - heading "Puma Suede Classic XXI" [level=3] [ref=e146]
+            - generic [ref=e148]: $79.990
+  - contentinfo [ref=e149]:
+    - generic [ref=e151]:
+      - generic [ref=e152]:
+        - link "SNEAKHUB" [ref=e153] [cursor=pointer]:
+          - /url: /
+        - paragraph [ref=e154]: Zapatillas urbanas premium. Drops exclusivos cada viernes. Envío gratis en pedidos +$50.000.
+        - generic [ref=e155]:
+          - link "Instagram" [ref=e156] [cursor=pointer]:
+            - /url: https://instagram.com
+            - img [ref=e157]
+          - link "Twitter" [ref=e160] [cursor=pointer]:
+            - /url: https://twitter.com
+            - img [ref=e161]
+          - link "YouTube" [ref=e163] [cursor=pointer]:
+            - /url: https://youtube.com
+            - img [ref=e164]
+      - generic [ref=e167]:
+        - heading "Tienda" [level=4] [ref=e168]
+        - list [ref=e169]:
+          - listitem [ref=e170]:
+            - link "Nuevos Drops" [ref=e171] [cursor=pointer]:
+              - /url: /shop?sort=newest
+          - listitem [ref=e172]:
+            - link "Hombre" [ref=e173] [cursor=pointer]:
+              - /url: /shop?category=Hombre
+          - listitem [ref=e174]:
+            - link "Mujer" [ref=e175] [cursor=pointer]:
+              - /url: /shop?category=Mujer
+          - listitem [ref=e176]:
+            - link "Niños" [ref=e177] [cursor=pointer]:
+              - /url: /shop?category=Kids
+          - listitem [ref=e178]:
+            - link "Sale" [ref=e179] [cursor=pointer]:
+              - /url: /shop?sale=true
+      - generic [ref=e180]:
+        - heading "Soporte" [level=4] [ref=e181]
+        - list [ref=e182]:
+          - listitem [ref=e183]:
+            - link "Contacto" [ref=e184] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e185]:
+            - link "Envíos" [ref=e186] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e187]:
+            - link "Devoluciones" [ref=e188] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e189]:
+            - link "Guía de Tallas" [ref=e190] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e191]:
+            - link "FAQ" [ref=e192] [cursor=pointer]:
+              - /url: "#"
+      - generic [ref=e193]:
+        - heading "Newsletter" [level=4] [ref=e194]
+        - paragraph [ref=e195]: Drops y ofertas directo a tu inbox.
+        - generic [ref=e196]:
+          - textbox "Email" [ref=e197]
+          - button "→" [ref=e198]
+    - generic [ref=e200]:
+      - paragraph [ref=e201]: © 2026 SneakHub. Todos los derechos reservados.
+      - generic [ref=e202]:
+        - link "Privacidad" [ref=e203] [cursor=pointer]:
+          - /url: "#"
+        - link "Términos" [ref=e204] [cursor=pointer]:
+          - /url: "#"
+        - button [ref=e205]:
+          - img [ref=e206]
+  - button "Open Next.js Dev Tools" [ref=e213] [cursor=pointer]:
+    - img [ref=e214]

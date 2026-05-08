@@ -16,7 +16,7 @@ import {
     X,
 } from "lucide-react";
 import { useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { signOut } from "@/lib/mock/auth";
 
 const sidebarLinks = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -30,7 +30,6 @@ const sidebarLinks = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createSupabaseBrowserClient();
     const pathname = usePathname();
     const router = useRouter();
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -41,7 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
+        await signOut();
         router.push("/admin/login");
     };
 

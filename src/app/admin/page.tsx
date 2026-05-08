@@ -5,55 +5,51 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 import { DollarSign, CreditCard, Activity, AlertTriangle, ArrowUpRight } from "lucide-react";
 import StatsCard from "@/components/admin/StatsCard";
 import StatusBadge from "@/components/admin/StatusBadge";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getOrders } from "@/lib/mock/store";
+import { getProducts } from "@/lib/mock/store";
 import Link from "next/link";
 import { formatCLP } from "@/lib/utils";
 
-
-
 export default function DashboardPage() {
-    const supabase = createSupabaseBrowserClient();
     const [stats, setStats] = useState({ revenue: 0, sales: 0, activePedidos: 0, outOfStock: 0 });
     const [chartData, setChartData] = useState<{ name: string; total: number }[]>([]);
     const [recentOrders, setRecentOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadDashboard();
-    }, []);
+    useEffect(() => { loadDashboard(); }, []);
 
     async function loadDashboard() {
         try {
+            const orders = await getOrders();
+            const products = await getProducts();
+
             const now = new Date();
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
             // KPI: Revenue + Sales count this month
-            const { data: orders } = await (supabase
-                .from("orders") as any)
-                .select("total_amount, status, created_at")
-                .gte("created_at", startOfMonth)
-                .in("status", ["paid", "processing", "shipped", "delivered"]);
-
-            const revenue = orders?.reduce((sum: any, o: any) => sum + Number(o.total_amount), 0) || 0;
-            const salesCount = orders?.length || 0;
+            const monthOrders = orders.filter((o: any) =>
+                o.created_at >= startOfMonth &&
+                ["paid", "processing", "shipped", "delivered"].includes(o.status)
+            );
+            const revenue = monthOrders.reduce((sum: number, o: any) => sum + Number(o.total_amount), 0);
+            const salesCount = monthOrders.length;
 
             // KPI: Active orders
-            const { count: activeCount } = await (supabase
-                .from("orders") as any)
-                .select("*", { count: "exact", head: true })
-                .in("status", ["pending", "processing"]);
+            const activePedidos = orders.filter((o: any) => ["pending", "processing"].includes(o.status)).length;
 
             // KPI: Out of stock variants
-            const { count: oosCount } = await (supabase
-                .from("product_variants") as any)
-                .select("*", { count: "exact", head: true })
-                .eq("stock_quantity", 0);
+            let outOfStock = 0;
+            products.forEach((p: any) => {
+                p.variants?.forEach((v: any) => {
+                    if (v.stock_quantity === 0) outOfStock++;
+                });
+            });
 
             setStats({
                 revenue,
                 sales: salesCount,
-                activePedidos: activeCount || 0,
-                outOfStock: oosCount || 0,
+                activePedidos,
+                outOfStock,
             });
 
             // Chart: Last 7 days revenue
@@ -64,50 +60,33 @@ export default function DashboardPage() {
                 return d;
             });
 
-            const { data: weekOrders } = await (supabase
-                .from("orders") as any)
-                .select("total_amount, created_at")
-                .gte("created_at", last7[0].toISOString())
-                .in("status", ["paid", "processing", "shipped", "delivered"]);
+            const weekOrders = orders.filter((o: any) => {
+                const od = new Date(o.created_at);
+                return od >= last7[0];
+            });
 
             const chart = last7.map((d: any) => {
-                const dayOrders = weekOrders?.filter((o: any) => {
+                const dayOrders = weekOrders.filter((o: any) => {
                     const od = new Date(o.created_at);
                     return od.toDateString() === d.toDateString();
-                }) || [];
-                return { name: days[d.getDay()], total: dayOrders.reduce((s: any, o: any) => s + Number(o.total_amount), 0) };
+                });
+                return { name: days[d.getDay()], total: dayOrders.reduce((s: number, o: any) => s + Number(o.total_amount), 0) };
             });
             setChartData(chart);
 
             // Recent orders
-            const { data: recent } = await (supabase
-                .from("orders") as any)
-                .select("id, total_amount, status, created_at, user_id")
-                .order("created_at", { ascending: false })
-                .limit(5);
-
-            if (recent) {
-                const withProfiles = await Promise.all(
-                    recent.map(async (order: any) => {
-                        let customerName = "Invitado";
-                        if (order.user_id) {
-                            const { data: profile } = await (supabase
-                                .from("profiles") as any)
-                                .select("full_name")
-                                .eq("id", order.user_id)
-                                .single();
-                            customerName = profile?.full_name || "Cliente";
-                        } else if (order.shipping_details) {
-                            // Handle guest checkout names
-                            const { firstName, lastName, full_name } = order.shipping_details;
-                            if (full_name) customerName = full_name;
-                            else if (firstName && lastName) customerName = `${firstName} ${lastName}`;
-                        }
-                        return { ...order, customerName };
-                    })
-                );
-                setRecentOrders(withProfiles);
-            }
+            const recent = orders.slice(0, 5);
+            const withProfiles = recent.map((order: any) => {
+                let customerName = "Invitado";
+                if (order.shipping_details) {
+                    const { firstName, lastName, full_name } = order.shipping_details;
+                    if (full_name) customerName = full_name;
+                    else if (firstName && lastName) customerName = `${firstName} ${lastName}`;
+                    else if (firstName) customerName = firstName;
+                }
+                return { ...order, customerName };
+            });
+            setRecentOrders(withProfiles);
         } catch (e) {
             console.error("Dashboard load error:", e);
         } finally {

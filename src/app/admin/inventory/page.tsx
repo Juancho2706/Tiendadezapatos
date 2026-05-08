@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Search, Check, AlertTriangle } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getProducts, updateProduct } from "@/lib/mock/store";
 import Image from "next/image";
 
 export default function InventoryPage() {
-    const supabase = createSupabaseBrowserClient();
     const [variants, setVariants] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -17,22 +16,42 @@ export default function InventoryPage() {
     useEffect(() => { loadInventory(); }, []);
 
     async function loadInventory() {
-        const { data } = await (supabase
-            .from("product_variants") as any)
-            .select("*, products(name, product_images(url, is_main))")
-            .order("stock_quantity", { ascending: true });
-        setVariants(data || []);
+        const products = await getProducts();
+        const allVariants: any[] = [];
+        products.forEach((p: any) => {
+            p.variants?.forEach((v: any, idx: number) => {
+                allVariants.push({
+                    id: `${p.id}-${idx}`,
+                    size: v.size,
+                    color: v.color,
+                    stock_quantity: v.stock_quantity,
+                    sku: v.sku,
+                    productName: p.name,
+                    productId: p.id,
+                    variantIdx: idx,
+                    image: p.images?.[0]?.url,
+                });
+            });
+        });
+        setVariants(allVariants);
         setLoading(false);
     }
 
     async function saveStock(variantId: string, newStock: number) {
-        await (supabase.from("product_variants") as any).update({ stock_quantity: newStock }).eq("id", variantId);
-        setVariants((v) => v.map((x: any) => x.id === variantId ? { ...x, stock_quantity: newStock } : x));
+        const v = variants.find((x) => x.id === variantId);
+        if (!v) return;
+        const product = await getProducts();
+        const target = product.find((p: any) => p.id === v.productId);
+        if (!target) return;
+        const newVariants = [...target.variants];
+        newVariants[v.variantIdx] = { ...newVariants[v.variantIdx], stock_quantity: newStock };
+        await updateProduct(v.productId, { variants: newVariants });
+        setVariants((prev) => prev.map((x: any) => x.id === variantId ? { ...x, stock_quantity: newStock } : x));
         setEditingId(null);
     }
 
     const filtered = variants.filter((v: any) => {
-        const matchSearch = v.products?.name?.toLowerCase().includes(search.toLowerCase()) || v.sku?.toLowerCase().includes(search.toLowerCase());
+        const matchSearch = v.productName?.toLowerCase().includes(search.toLowerCase()) || v.sku?.toLowerCase().includes(search.toLowerCase());
         const matchFilter =
             filter === "all" ? true :
                 filter === "out" ? v.stock_quantity === 0 :
@@ -93,7 +112,7 @@ export default function InventoryPage() {
                             <tr><td colSpan={6} className="py-12 text-center text-zinc-500">No se encontraron variantes</td></tr>
                         ) : (
                             filtered.map((v: any) => {
-                                const img = v.products?.product_images?.find((i: any) => i.is_main)?.url || v.products?.product_images?.[0]?.url;
+                                const img = v.image;
                                 const isEditing = editingId === v.id;
                                 return (
                                     <tr key={v.id} className="hover:bg-zinc-900/30 transition-colors">
@@ -102,7 +121,7 @@ export default function InventoryPage() {
                                                 <div className="w-8 h-8 rounded bg-zinc-800 overflow-hidden relative flex-shrink-0">
                                                     {img && <Image src={img} alt="" fill className="object-cover" />}
                                                 </div>
-                                                <span className="text-white font-medium text-sm truncate max-w-[180px]">{v.products?.name}</span>
+                                                <span className="text-white font-medium text-sm truncate max-w-[180px]">{v.productName}</span>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3 text-white font-bold">{v.size}</td>

@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Trash2, Edit, Loader2, X } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getBrands, createBrand, updateBrand, deleteBrand } from "@/lib/mock/store";
 import Image from "next/image";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 
 export default function BrandsPage() {
-    const supabase = createSupabaseBrowserClient();
     const [brands, setBrands] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
@@ -20,7 +19,7 @@ export default function BrandsPage() {
     useEffect(() => { loadBrands(); }, []);
 
     async function loadBrands() {
-        const { data } = await supabase.from("brands").select("*, products(id)").order("name");
+        const data = await getBrands();
         setBrands(data || []);
         setLoading(false);
     }
@@ -45,9 +44,9 @@ export default function BrandsPage() {
         setSaving(true);
         const data: any = { name: form.name, slug: form.slug || generateSlug(form.name), logo_url: form.logo_url || null };
         if (editBrand) {
-            await (supabase.from("brands") as any).update(data).eq("id", editBrand.id);
+            await updateBrand(editBrand.id, data);
         } else {
-            await (supabase.from("brands") as any).insert(data);
+            await createBrand(data);
         }
         setModalOpen(false);
         setSaving(false);
@@ -57,7 +56,7 @@ export default function BrandsPage() {
     async function handleDelete() {
         if (!deleteId) return;
         setDeleting(true);
-        await supabase.from("brands").delete().eq("id", deleteId);
+        await deleteBrand(deleteId);
         setBrands((b) => b.filter((x) => x.id !== deleteId));
         setDeleteId(null);
         setDeleting(false);
